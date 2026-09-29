@@ -1,16 +1,29 @@
-.staff-dashboard {
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
   min-height: 100vh;
-  padding: 32px;
+
+  font-family: Inter, system-ui, sans-serif;
 
   background:
     radial-gradient(
       circle at 10% 20%,
-      rgba(16,85,247,0.22),
+      rgba(56, 189, 248, 0.22),
       transparent 30%
     ),
     radial-gradient(
       circle at 90% 10%,
-      rgba(59, 130, 246, 0.2),
+      rgba(59, 130, 246, 0.20),
       transparent 30%
     ),
     linear-gradient(
@@ -18,11 +31,6 @@
       #eaf6ff,
       #f7fbff
     );
-}
-
-.staff-dashboard h1 {
-  margin: 0;
 
   color: #0f172a;
-  font-size: 32px;
 }
