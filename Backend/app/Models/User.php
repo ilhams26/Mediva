@@ -19,9 +19,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'username',
+        'no_hp',
+        'role',
+        'otp',
+        'jenis_kelamin',
+        'tanggal_lahir',
         'password',
+        'otp_verified_at',
+        'otp_expired_at',
     ];
 
     /**
@@ -31,6 +37,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'otp',
         'remember_token',
     ];
 
@@ -42,8 +49,10 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'tanggal_lahir' => 'date',
             'password' => 'hashed',
+            'otp_verified_at' => 'datetime',
+            'otp_expired_at' => 'datetime',
         ];
     }
 }

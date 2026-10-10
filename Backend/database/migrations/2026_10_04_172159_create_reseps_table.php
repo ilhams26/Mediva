@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('obat_id')->nullable()->constrained('obats')->onDelete('set null');
+            $table->foreignId('orders_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->string('foto_resep');
             $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('set null');
@@ -22,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      */
