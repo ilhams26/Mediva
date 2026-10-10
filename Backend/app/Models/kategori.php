@@ -8,6 +8,10 @@ class kategori extends Model
 {
     protected $table = 'kategoris';
     protected $fillable = [
-        'nama',
+        'nama'
     ];
+    public function obat()
+    {
+        return $this->hasMany(obat::class, 'kategori_id');
+    }
 }
