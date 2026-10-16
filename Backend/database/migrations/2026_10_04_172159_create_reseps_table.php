@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('resep', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('orders_id')->nullable()->constrained('orders')->onDelete('set null');
+            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('set null');
             $table->string('foto_resep');
             $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
             $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('set null');

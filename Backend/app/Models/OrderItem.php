@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class order_items extends Model
+class OrderItem extends Model
 {
     protected $table = 'order_items';
 
@@ -13,21 +13,22 @@ class order_items extends Model
         'obat_id',
         'harga',
         'qty',
-        'subtotal'
+        'subtotal',
     ];
 
     protected $casts = [
         'harga' => 'decimal:2',
+        'qty' => 'integer',
         'subtotal' => 'decimal:2',
     ];
 
     public function order()
     {
-        return $this->belongsTo(orders::class, 'order_id');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function obat()
     {
-        return $this->belongsTo(obat::class, 'obat_id');
+        return $this->belongsTo(Obat::class, 'obat_id');
     }
 }
