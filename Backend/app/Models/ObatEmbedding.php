@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Obat;
-class obat_embeddings extends Model
+
+class ObatEmbedding extends Model
 {
     protected $table = 'obat_embeddings';
 
@@ -12,7 +12,7 @@ class obat_embeddings extends Model
         'obat_id',
         'content',
         'embedding_model',
-        'embedding'
+        'embedding',
     ];
 
     public function obat()

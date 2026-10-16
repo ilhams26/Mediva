@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class kategori extends Model
+class Kategori extends Model
 {
     protected $table = 'kategoris';
+
     protected $fillable = [
-        'nama'
+        'nama',
     ];
-    public function obat()
+
+    public function obats()
     {
-        return $this->hasMany(obat::class, 'kategori_id');
+        return $this->hasMany(Obat::class, 'kategori_id');
     }
 }
