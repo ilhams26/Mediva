@@ -21,7 +21,8 @@ return new class extends Migration
             $table->date('tanggal_lahir')->nullable();
             $table->string('otp', 6)->nullable();
             $table->timestamp('otp_verified_at')->nullable();
-            $table->timestamp('otp_expires_at')->nullable();
+            $table->timestamp('otp_expired_at')->nullable();
+            $table->boolean('is_active')->default(true);
 
             $table->rememberToken();
             $table->timestamps();

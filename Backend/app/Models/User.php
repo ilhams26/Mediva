@@ -7,11 +7,12 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens,HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -19,9 +20,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
+        'username',
+        'no_hp',
+        'role',
+        'otp',
+        'jenis_kelamin',
+        'tanggal_lahir',
         'password',
+        'otp_verified_at',
+        'otp_expired_at',
+        'is_active',
     ];
 
     /**
@@ -31,6 +39,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'otp',
         'remember_token',
     ];
 
@@ -42,8 +51,41 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'tanggal_lahir' => 'date',
             'password' => 'hashed',
+            'otp_verified_at' => 'datetime',
+            'otp_expired_at' => 'datetime',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function reseps()
+    {
+        return $this->hasMany(Resep::class, 'user_id');
+    }
+
+    public function notifikasis()
+    {
+        return $this->hasMany(Notifikasi::class, 'user_id');
+    }
+
+    public function interaksiPenggunas()
+    {
+        return $this->hasMany(InteraksiPengguna::class, 'user_id');
+    }
+
+    public function resepDivalidasi()
+    {
+        return $this->hasMany(Resep::class, 'validated_by');
+    }
+
+    public function pergerakanStoks()
+    {
+        return $this->hasMany(PergerakanStok::class, 'created_by');
     }
 }
