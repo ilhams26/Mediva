@@ -12,20 +12,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rekomendasis', function (Blueprint $table) {
+
+        Schema::create('obat_embeddings', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('obat_id')->unique()->constrained('obats')->onDelete('cascade');
             $table->text('content');
             $table->string('embedding_model')->default('text-embedding-004');
             $table->timestamps();
         });
-        DB::statement('ALTER TABLE obats ADD COLUMN embedding extensions.vector(384);');
+
+        DB::statement('ALTER TABLE obat_embeddings ADD COLUMN embedding extensions.vector(768);');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('rekomendasis');
+        Schema::dropIfExists('obat_embeddings');
     }
 };
