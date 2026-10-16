@@ -29,6 +29,7 @@ class User extends Authenticatable
         'password',
         'otp_verified_at',
         'otp_expired_at',
+        'is_active',
     ];
 
     /**
@@ -54,6 +55,37 @@ class User extends Authenticatable
             'password' => 'hashed',
             'otp_verified_at' => 'datetime',
             'otp_expired_at' => 'datetime',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    public function reseps()
+    {
+        return $this->hasMany(Resep::class, 'user_id');
+    }
+
+    public function notifikasis()
+    {
+        return $this->hasMany(Notifikasi::class, 'user_id');
+    }
+
+    public function interaksiPenggunas()
+    {
+        return $this->hasMany(InteraksiPengguna::class, 'user_id');
+    }
+
+    public function resepDivalidasi()
+    {
+        return $this->hasMany(Resep::class, 'validated_by');
+    }
+
+    public function pergerakanStoks()
+    {
+        return $this->hasMany(PergerakanStok::class, 'created_by');
     }
 }

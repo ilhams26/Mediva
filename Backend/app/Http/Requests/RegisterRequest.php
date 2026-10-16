@@ -26,7 +26,7 @@ class RegisterRequest extends FormRequest
             'username' => 'required|string|max:255|unique:users,username',
             'no_hp' => 'required|string|max:20|unique:users,no_hp',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'nullable|in:admin,staf,PEMBELI',
+            'role' => 'nullable|in:admin,staf,pembeli',
         ];
     }
 }

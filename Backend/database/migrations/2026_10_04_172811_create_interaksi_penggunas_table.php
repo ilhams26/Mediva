@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('interaksi_penggunas', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
             $table->enum('event_type', ['view', 'add_to_cart', 'purchase']);
