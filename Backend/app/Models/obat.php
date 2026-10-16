@@ -31,8 +31,8 @@ class obat extends Model
     {
         return $this->hasMany(batches::class, 'obat_id');
     }
-    public function rekomendasi()
+    public function embedding()
     {
-        return $this->belongsTo(rekomendasi::class, 'obat_id');
+        return $this->hasOne(obat_embeddings::class, 'obat_id');
     }
 }
