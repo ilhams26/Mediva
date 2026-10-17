@@ -32,4 +32,9 @@ class PergerakanStok extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+    
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class, 'batch_id');
+    }
 }

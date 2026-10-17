@@ -10,7 +10,7 @@ class Resep extends Model
 
     protected $fillable = [
         'user_id',
-        'orders_id',
+        'order_id',
         'foto_resep',
         'status',
         'validated_by',
@@ -28,7 +28,7 @@ class Resep extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'orders_id');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
     public function validator()

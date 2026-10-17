@@ -1,23 +1,27 @@
 <?php
 
+// Letakkan di: app/Services/AuthService.php
+
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
-
     public function registerUser(array $data): array
     {
-        $user = User::create($data);
-
-        $token = $user->createToken('mediva_auth_token')->plainTextToken;
+        $user = new User();
+        $user->fill(Arr::only($data, ['username', 'no_hp', 'password', 'jenis_kelamin', 'tanggal_lahir']));
+        $user->role = 'pembeli';
+        $user->is_active = true;
+        $user->save();
 
         return [
-            'user' => $user,
-            'token' => $token,
+            'user'  => $user,
+            'token' => $user->createToken('mediva_auth_token')->plainTextToken,
         ];
     }
 
@@ -39,11 +43,9 @@ class AuthService
             ]);
         }
 
-        $token = $user->createToken('mediva_auth_token')->plainTextToken;
-
         return [
-            'user' => $user,
-            'token' => $token,
+            'user'  => $user,
+            'token' => $user->createToken('mediva_auth_token')->plainTextToken,
         ];
     }
 }
