@@ -15,12 +15,13 @@ class Order extends Model
         'total_harga',
         'status',
         'payment_status',
-        'completed_at',
-    ];
+        'completed_at','midtrans_transaction_id', 'snap_token', 'paid_at'
+];
 
     protected $casts = [
         'total_harga' => 'decimal:2',
         'completed_at' => 'datetime',
+        'paid_at' => 'datetime',
     ];
 
     public function user()
