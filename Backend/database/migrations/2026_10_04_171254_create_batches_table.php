@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
-use function Laravel\Prompts\table;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -23,6 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->index(['obat_id', 'expired_date']);
         });
+        DB::statement('ALTER TABLE batches ADD CONSTRAINT check_batches_jumlah_sisa CHECK (jumlah_sisa >= 0);');
     }
 
     /**

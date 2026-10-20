@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -19,7 +20,13 @@ return new class extends Migration
             $table->integer('qty');
             $table->decimal('subtotal', 10, 2);
             $table->timestamps();
+
+            $table->index('order_id');
+            $table->index('obat_id');
         });
+
+        // Constraint bisnis: kuantitas item pesanan harus lebih besar dari 0
+        DB::statement('ALTER TABLE order_items ADD CONSTRAINT check_order_items_qty CHECK (qty > 0);');
     }
 
     /**
