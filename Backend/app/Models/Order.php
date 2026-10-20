@@ -15,8 +15,11 @@ class Order extends Model
         'total_harga',
         'status',
         'payment_status',
-        'completed_at','midtrans_transaction_id', 'snap_token', 'paid_at'
-];
+        'snap_token',
+        'midtrans_transaction_id',
+        'paid_at',
+        'completed_at',
+    ];
 
     protected $casts = [
         'total_harga' => 'decimal:2',
@@ -36,6 +39,6 @@ class Order extends Model
 
     public function resep()
     {
-        return $this->hasOne(Resep::class, 'orders_id');
+        return $this->hasOne(Resep::class, 'order_id');
     }
 }
