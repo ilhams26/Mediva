@@ -19,8 +19,13 @@ return new class extends Migration
             $table->decimal('total_harga', 10, 2);
             $table->enum('status', ['diproses', 'siap_diambil', 'selesai', 'dibatalkan'])->default('diproses');
             $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
+            $table->string('snap_token')->nullable();
+            $table->string('midtrans_transaction_id')->nullable();
+            $table->timestamp('paid_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
+
+            $table->index('user_id');
         });
     }
 
