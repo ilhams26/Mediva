@@ -10,6 +10,7 @@ class PergerakanStok extends Model
 
     protected $fillable = [
         'obat_id',
+        'batch_id',
         'tipe',
         'jumlah',
         'sumber',

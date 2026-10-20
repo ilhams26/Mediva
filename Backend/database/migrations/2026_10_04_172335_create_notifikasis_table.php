@@ -20,6 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('reference_id')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamps();
+
+            $table->index('user_id');
         });
     }
 

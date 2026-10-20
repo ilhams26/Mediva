@@ -47,7 +47,7 @@ Project 3 tidak menggunakan mitra tertentu dan dirancang sebagai konsep platform
 4. Mendukung pengelolaan resep pada proses pemesanan obat tertentu.
 5. Mengelola persediaan obat berdasarkan batch dan tanggal kedaluwarsa.
 6. Menyediakan proses pembayaran dan pemantauan status pesanan.
-7. Menyediakan pengelolaan operasional melalui web admin/staff.
+7. Menyediakan pengelolaan operasional melalui web admin/staf.
 8. Menyediakan AI Assistant untuk membantu pengguna memahami informasi obat.
 9. Menyediakan Smart Product Recommendation untuk menghasilkan rekomendasi produk yang relevan.
 10. Menerapkan arsitektur modern berbasis REST API dan database PostgreSQL.
@@ -58,18 +58,18 @@ Project 3 tidak menggunakan mitra tertentu dan dirancang sebagai konsep platform
 
 | Role | Deskripsi |
 |---|---|
-| Buyer | Pengguna umum yang menggunakan aplikasi mobile untuk mencari informasi obat dan melakukan pembelian |
-| Staff | Pengguna internal yang menangani aktivitas operasional seperti stok, pesanan, resep, dan transaksi |
+| Pembeli | Pengguna umum yang menggunakan aplikasi mobile untuk mencari informasi obat dan melakukan pembelian |
+| Staf | Pengguna internal yang menangani aktivitas operasional seperti stok, pesanan, resep, dan transaksi |
 | Admin | Pengguna internal dengan hak akses lebih tinggi untuk mengelola pengguna dan fungsi administratif |
 
 ## 5. Scope Sistem
 
 Mediva dibagi menjadi tiga bagian utama.
 
-### 5.1 Mobile Application (Buyer)
+### 5.1 Mobile Application (Pembeli)
 Autentikasi, katalog obat, pencarian obat, detail obat, AI Assistant, rekomendasi produk, keranjang, checkout, upload resep, pesanan, pembayaran, notifikasi, profil.
 
-### 5.2 Web Application (Staff & Admin)
+### 5.2 Web Application (Staf & Admin)
 Autentikasi, dashboard operasional, pengelolaan obat, kategori, stok dan batch, pesanan, resep, kasir, pengguna, laporan.
 
 ### 5.3 Backend API
@@ -79,9 +79,9 @@ Business logic, autentikasi, validasi, database access, order processing, stock 
 
 | Layer | Teknologi | Catatan |
 |---|---|---|
-| Frontend Web | **React.js** | Web admin, web staff, dashboard, management interface. Berkomunikasi dengan Laravel via REST API. |
+| Frontend Web | **React.js** | Web admin, web staf, dashboard, management interface. Berkomunikasi dengan Laravel via REST API. |
 | Backend | **Laravel 12** (PHP ≥ 8.3) | REST API, auth, authorization, validation, business logic, service layer, AI integration, recommendation engine, payment, notification |
-| Mobile | **Flutter / Dart** | Aplikasi mobile untuk buyer. Berkomunikasi dengan Laravel via REST API. |
+| Mobile | **Flutter / Dart** | Aplikasi mobile untuk pembeli. Berkomunikasi dengan Laravel via REST API. |
 | Database | **PostgreSQL** | Database utama: users, categories, medicines, batches, orders, order items, stock movements, prescriptions, notifications, recommendation data, AI-related data |
 | Vector Database Capability | **pgvector** | Extension PostgreSQL untuk menyimpan & mencari embedding/vector. Fokus: semantic search, medicine similarity, product similarity, recommendation support. Data transaksional (harga, stok, tanggal, quantity, order ID, user ID) tetap relasional, **tidak** diubah jadi vector. |
 | AI Provider | **Gemini API** | Provider awal untuk fitur generative AI. Arsitektur AI dibuat melalui backend Laravel sehingga provider dapat diganti tanpa mengubah mobile/web. |
@@ -92,12 +92,12 @@ Business logic, autentikasi, validasi, database access, order processing, stock 
 ```
 ┌─────────────────────┐
 │   React.js Web       │
-│   Admin / Staff       │
+│   Admin / Staf        │
 └──────────┬────────────┘
            │ REST API
 ┌─────────────────────┐  ▼
 │  Flutter Mobile       │──► Laravel 12 API
-│  Buyer                │       │
+│  Pembeli              │       │
 └─────────────────────┘        ├──────────────► PostgreSQL
                                 │                   │
                                 │                   └── pgvector
@@ -114,7 +114,7 @@ Business logic, autentikasi, validasi, database access, order processing, stock 
 - Alur Recommendation:
   `User/Product → Recommendation Service → Relational Data + Vector Search → Candidate Products → Ranking → Recommended Products`
 
-## 8. Fitur Utama — Buyer Mobile
+## 8. Fitur Utama — Pembeli Mobile
 
 - **Authentication:** register, login, logout, forgot password, OTP verification/reset, change password, session/token management
 - **Home:** daftar kategori, produk pilihan, produk populer, rekomendasi produk, akses AI Assistant
@@ -130,10 +130,10 @@ Business logic, autentikasi, validasi, database access, order processing, stock 
 ## 9. AI FEATURE 1 — Mediva AI Assistant
 
 ### 9.1 Tujuan
-Membantu buyer memperoleh informasi umum mengenai obat menggunakan bahasa natural, tanpa harus tahu nama obat atau keyword tertentu. Contoh: *"Paracetamol itu buat apa?"*, *"Ada obat yang berkaitan dengan demam?"*, *"Apa perbedaan dua produk ini?"*
+Membantu pembeli memperoleh informasi umum mengenai obat menggunakan bahasa natural, tanpa harus tahu nama obat atau keyword tertentu. Contoh: *"Paracetamol itu buat apa?"*, *"Ada obat yang berkaitan dengan demam?"*, *"Apa perbedaan dua produk ini?"*
 
 ### 9.2 Posisi Fitur
-Di aplikasi mobile buyer — via `Home → AI Assistant` atau Floating AI Button.
+Di aplikasi mobile pembeli — via `Home → AI Assistant` atau Floating AI Button.
 
 ### 9.3 Kemampuan
 1. Menjelaskan informasi umum mengenai obat
@@ -202,7 +202,7 @@ User → Recommendation Request → Recommendation Service
 - Sistem tetap mempertimbangkan: produk aktif, stok tersedia, produk tidak diarsipkan, aturan kategori, kebutuhan resep bila berlaku.
 - Recommendation layer hanya menghasilkan **kandidat**; aturan bisnis tetap dikontrol Laravel.
 
-## 11. Web Application — React.js (Staff & Admin)
+## 11. Web Application — React.js (Staf & Admin)
 
 - **Authentication:** login, logout, protected route, role-based access
 - **Dashboard:** monitoring operasional (jumlah obat, stok, pesanan, transaksi, status resep). *Dashboard bukan fitur AI tambahan.*
@@ -280,9 +280,9 @@ Tujuannya: memisahkan data faktual/transaksional dari data semantik.
 
 | Role | Akses |
 |---|---|
-| Buyer | katalog, AI Assistant, recommendation, cart, order milik sendiri, prescription milik sendiri, notification milik sendiri, profile milik sendiri |
-| Staff | stok, batch, order, prescription, cashier, fungsi operasional lainnya |
-| Admin | akses staff + user management + administrative functions |
+| Pembeli | katalog, AI Assistant, recommendation, cart, order milik sendiri, prescription milik sendiri, notification milik sendiri, profile milik sendiri |
+| Staf | stok, batch, order, prescription, cashier, fungsi operasional lainnya |
+| Admin | akses staf + user management + administrative functions |
 
 Authorization **harus** diterapkan di backend. Frontend hanya menyembunyikan menu — **frontend bukan security boundary**.
 
@@ -291,7 +291,7 @@ Authorization **harus** diterapkan di backend. Frontend hanya menyembunyikan men
 Keamanan adalah bagian dari desain, bukan fitur tambahan setelah sistem selesai.
 
 - **Authentication Security:** password hashing, secure token handling, protected API, logout, session/token expiration, rate limiting login
-- **Authorization Security:** role-based authorization, ownership validation, backend authorization, cegah buyer akses fungsi staff/admin
+- **Authorization Security:** role-based authorization, ownership validation, backend authorization, cegah pembeli akses fungsi staf/admin
 - **API Security:** request validation, authorization, rate limiting, proper error handling, HTTPS di production
 - **OTP Security:** random di production, expiration, attempt limitation, request limitation. *OTP reset password TIDAK disebut MFA kecuali benar-benar jadi faktor tambahan di login yang sama.*
 - **Prescription Security:** file resep adalah data sensitif — tidak boleh diakses bebas hanya dengan tahu URL; akses harus lewat mekanisme authorization
@@ -329,9 +329,9 @@ User → Open Product/Browse/Purchase → Recommendation Service → Get Candida
 
 **Batch:** satu obat bisa punya banyak batch; tiap batch punya tanggal kedaluwarsa; `jumlah_sisa` tidak boleh negatif; FEFO dipakai saat pengeluaran stok.
 
-**Order:** satu order punya banyak order item; satu buyer per order; punya status dan payment status.
+**Order:** satu order punya banyak order item; satu pembeli per order; punya status dan payment status.
 
-**Prescription:** bisa diwajibkan untuk produk tertentu; harus divalidasi staff/admin; status harus tercatat.
+**Prescription:** bisa diwajibkan untuk produk tertentu; harus divalidasi staf/admin; status harus tercatat.
 
 **Recommendation:** hanya produk aktif yang boleh direkomendasikan; produk tanpa stok tidak boleh ditampilkan sebagai produk yang dapat dibeli; recommendation tidak boleh melewati business rule obat/resep; recommendation hanyalah mekanisme bantu pemilihan produk, **bukan** keputusan medis.
 
@@ -382,7 +382,7 @@ src/
 ├── routes/
 └── utils/
 ```
-Halaman: Admin, Staff, Dashboard, Medicine Management, Batch, Orders, Prescription, Cashier, Users, Reports
+Halaman: Admin, Staf, Dashboard, Medicine Management, Batch, Orders, Prescription, Cashier, Users, Reports
 
 ## 26. Flutter Structure
 ```
@@ -467,12 +467,12 @@ Project 3 sengaja fokus pada dua intelligent feature: **AI Assistant** dan **Sma
 2. **AI Assistant** — buka Mediva AI Assistant → tanya "Jelaskan informasi obat ini." → tampilkan jawaban berbasis context Mediva
 3. **Recommendation** — buka produk → tampilkan "Recommended for You"/"Related Products" → jelaskan kombinasi data transaksi + semantic similarity
 4. **Transaction** — cart → checkout → upload resep bila perlu → pembayaran
-5. **Web** — login staff/admin → tampilkan order → validasi resep → proses order → tunjukkan pengurangan stok FEFO
+5. **Web** — login staf/admin → tampilkan order → validasi resep → proses order → tunjukkan pengurangan stok FEFO
 6. **Security & Architecture** — role authorization, API architecture, PostgreSQL, pgvector, AI flow, security controls, testing, CI/CD
 
 ## 34. Success Criteria
 
-**Core System:** buyer bisa login, lihat katalog, order, lihat status order; prescription workflow jalan; payment workflow jalan; staff/admin bisa kelola operasional; inventory & FEFO konsisten.
+**Core System:** pembeli bisa login, lihat katalog, order, lihat status order; prescription workflow jalan; payment workflow jalan; staf/admin bisa kelola operasional; inventory & FEFO konsisten.
 
 **AI Assistant:** user bisa kirim pertanyaan; Laravel proses request; sistem ambil context relevan; AI jawab berdasarkan context; tidak diagnosis/prescribing; fallback jalan saat AI gagal/info tidak tersedia.
 
@@ -492,10 +492,10 @@ Project 3 sengaja fokus pada dua intelligent feature: **AI Assistant** dan **Sma
 
 ## 36. Final Project Scope
 
-**Core Pharmacy System:** Authentication, User management, Medicine catalog, Category, Batch, Inventory, FEFO, Cart, Checkout, Order, Prescription, Payment, Notification, Reports, Admin/staff web
+**Core Pharmacy System:** Authentication, User management, Medicine catalog, Category, Batch, Inventory, FEFO, Cart, Checkout, Order, Prescription, Payment, Notification, Reports, Admin/staf web
 
 **Intelligent Features:**
-1. Mediva AI Assistant — AI-based medicine information & natural-language assistance untuk buyer
+1. Mediva AI Assistant — AI-based medicine information & natural-language assistance untuk pembeli
 2. Smart Product Recommendation — rekomendasi produk cerdas berbasis data transaksi, perilaku user, dan semantic similarity (PostgreSQL + pgvector)
 
 ## 37. Final Technology Summary
@@ -518,7 +518,7 @@ Project 3 sengaja fokus pada dua intelligent feature: **AI Assistant** dan **Sma
 
 - **Application:** Mediva
 - **Platform:** Smart Medicine Platform
-- **Primary Users:** Buyer, Staff, Admin
+- **Primary Users:** Pembeli, Staf, Admin
 - **Primary Platforms:** Web + Mobile
 - **Core System:** Pharmacy & Medicine Management
 - **Intelligent Features:** Mediva AI Assistant, Smart Product Recommendation

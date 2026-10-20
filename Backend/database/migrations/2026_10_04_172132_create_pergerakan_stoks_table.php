@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pergerakan_stok', function (Blueprint $table) {
             $table->id();
             $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
+            $table->foreignId('batch_id')->nullable()->constrained('batches')->onDelete('set null');
             $table->enum('tipe', ['masuk', 'keluar', 'penyesuaian']);
             $table->integer('jumlah');
             $table->string('sumber');
@@ -21,6 +22,9 @@ return new class extends Migration
             $table->text('keterangan')->nullable();
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
+
+            $table->index('obat_id');
+            $table->index('batch_id');
         });
     }
 
