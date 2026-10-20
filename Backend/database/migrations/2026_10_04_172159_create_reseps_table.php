@@ -20,6 +20,9 @@ return new class extends Migration
             $table->foreignId('validated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamp('validated_at')->nullable();
             $table->timestamps();
+
+            $table->index('user_id');
+            $table->index('order_id');
         });
     }
     
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reseps');
+        Schema::dropIfExists('resep');
     }
 };
