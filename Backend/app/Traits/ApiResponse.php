@@ -4,20 +4,13 @@ namespace App\Traits;
 
 use Illuminate\Http\JsonResponse;
 
-/**
- * Trait ApiResponse
- *
- * Menyediakan format respons JSON yang seragam untuk seluruh controller.
- * Semua endpoint wajib menggunakan trait ini agar konsistensi format terjaga.
- */
 trait ApiResponse
 {
     /**
-     * Respons sukses standar.
      *
-     * @param  mixed        $data    Data payload yang dikembalikan ke klien
-     * @param  string       $message Pesan sukses yang dapat dibaca manusia
-     * @param  int          $code    HTTP status code (default 200)
+     * @param  mixed       
+     * @param  string      
+     * @param  int    
      * @return JsonResponse
      */
     protected function success(mixed $data = null, string $message = 'Berhasil.', int $code = 200): JsonResponse
@@ -35,10 +28,9 @@ trait ApiResponse
     }
 
     /**
-     * Respons untuk resource yang baru dibuat (201 Created).
      *
-     * @param  mixed        $data    Data resource yang dibuat
-     * @param  string       $message Pesan sukses
+     * @param  mixed      
+     * @param  string       
      * @return JsonResponse
      */
     protected function created(mixed $data = null, string $message = 'Data berhasil dibuat.'): JsonResponse
@@ -47,11 +39,10 @@ trait ApiResponse
     }
 
     /**
-     * Respons error generik.
      *
-     * @param  string       $message Pesan error yang dapat dibaca manusia
-     * @param  int          $code    HTTP status code
-     * @param  mixed        $errors  Detail error (mis. dari validasi)
+     * @param  string       
+     * @param  int          
+     * @param  mixed        
      * @return JsonResponse
      */
     protected function error(string $message = 'Terjadi kesalahan.', int $code = 400, mixed $errors = null): JsonResponse
@@ -69,9 +60,8 @@ trait ApiResponse
     }
 
     /**
-     * Respons 401 Unauthorized — tidak terautentikasi.
      *
-     * @param  string $message
+     * @param  string 
      * @return JsonResponse
      */
     protected function unauthorized(string $message = 'Tidak terautentikasi.'): JsonResponse
@@ -80,9 +70,8 @@ trait ApiResponse
     }
 
     /**
-     * Respons 403 Forbidden — terautentikasi tapi tidak punya hak akses.
      *
-     * @param  string $message
+     * @param  string 
      * @return JsonResponse
      */
     protected function forbidden(string $message = 'Akses ditolak. Anda tidak memiliki izin untuk aksi ini.'): JsonResponse
@@ -91,9 +80,8 @@ trait ApiResponse
     }
 
     /**
-     * Respons 404 Not Found.
      *
-     * @param  string $message
+     * @param  string 
      * @return JsonResponse
      */
     protected function notFound(string $message = 'Data tidak ditemukan.'): JsonResponse
@@ -102,10 +90,9 @@ trait ApiResponse
     }
 
     /**
-     * Respons 422 Unprocessable Entity — validasi gagal.
      *
-     * @param  mixed  $errors  Array berisi detail field yang gagal validasi
-     * @param  string $message
+     * @param  mixed   
+     * @param  string 
      * @return JsonResponse
      */
     protected function validationFailed(mixed $errors, string $message = 'Data yang dikirim tidak valid.'): JsonResponse
