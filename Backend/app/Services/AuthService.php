@@ -33,7 +33,7 @@ class AuthService
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'login_id' => ['Kredensial yang diberikan tidak cocok dengan data kami.'],
+                'login_id' => ['Kredensial yang diberikan tidak sesuai.'],
             ]);
         }
 
