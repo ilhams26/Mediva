@@ -17,8 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
-        then: function (Router $router): void {
-            // Rate limiters didaftarkan di sini agar tersedia saat routing berjalan
+        then: function(): void {
             \Illuminate\Support\Facades\RateLimiter::for('login', function (Request $request) {
                 // Maks 5 percobaan login per menit per IP
                 return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)
@@ -53,23 +52,18 @@ return Application::configure(basePath: dirname(__DIR__))
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Daftarkan alias 'role' untuk RoleMiddleware
-        // Satu nama alias konsisten di seluruh kode (tidak ada duplikasi)
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
 
-        // Tambahkan cookie Sanctum ke middleware API agar SPA dapat menggunakan
-        // cookie-based auth (untuk React web admin/staf)
+
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Paksa semua error di route API selalu mengembalikan JSON, bukan HTML
         $exceptions->shouldRenderJsonWhen(function (Request $request, \Throwable $e): bool {
             return $request->is('api/*') || $request->expectsJson();
         });
 
-        // Render ValidationException → 422 JSON (format seragam)
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
