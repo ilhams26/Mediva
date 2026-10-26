@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('obat_id')->unique()->constrained('obats')->onDelete('cascade');
             $table->text('content');
-            $table->string('embedding_model')->default('text-embedding-004');
+            $table->string('embedding_model')->default('gemini-embedding-001');
             $table->timestamps();
         });
 
