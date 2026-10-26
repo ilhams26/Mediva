@@ -294,10 +294,15 @@ Tujuannya: memisahkan data faktual/transaksional dari data semantik.
 
 ## 16. Authentication
 
-- **Web React:** Laravel **Sanctum** (SPA authentication)
-- **Mobile Flutter:** **JWT** untuk authenticated API request. Token dikelola aman di sisi mobile.
+Semua klien (web React dan mobile Flutter) memakai **token Sanctum (Bearer token)**. Tidak memakai JWT dan tidak memakai mode cookie SPA.
 
-> **[Belum diputuskan]** Kode backend saat ini mengeluarkan token Sanctum biasa (`createToken`) untuk semua klien, bukan JWT. Putuskan satu pendekatan (disarankan: token Sanctum untuk mobile), lalu samakan dokumen dan kode.
+- **Alur:** klien mengirim kredensial ke `/login` → backend mengembalikan token → klien menyertakan header `Authorization: Bearer <token>` di setiap request → `/logout` menghapus token dari database sehingga langsung tidak berlaku.
+- **Masa berlaku:** token web (staf/admin) pendek, misalnya 8 jam. Token mobile lebih panjang, misalnya 7 hari. Gunakan parameter `expiresAt` pada `createToken`, dan atur `expiration` di `config/sanctum.php` sebagai batas atas.
+- **Penyimpanan di web:** di memori aplikasi, boleh ditambah `sessionStorage` agar tidak hilang saat refresh. Jangan `localStorage`. Karena token dapat dibaca skrip jika terjadi XSS, wajib ada mitigasi: tanpa `dangerouslySetInnerHTML`, CSP, dependensi dijaga, dan masa berlaku pendek.
+- **Penyimpanan di mobile:** penyimpanan aman perangkat (`flutter_secure_storage`), bukan SharedPreferences.
+- **Kemampuan token (opsional):** token dibuat dengan *abilities* sesuai role, sebagai lapisan tambahan di atas pengecekan role di backend.
+- Login dibatasi rate limit (lihat §18).
+- Konfigurasi `.env` tidak membutuhkan `JWT_SECRET` maupun cookie/session untuk API.
 
 ## 17. Authorization
 
@@ -434,7 +439,7 @@ Screen utama: Login, Register, Home, Catalog, Medicine Detail, Category, AI Assi
 - **Version Control:** Git/GitHub
 - **CI/CD:** GitHub Actions
 
-Secret (database password, JWT secret, AI API key, Midtrans credential, SSH private key) **tidak boleh** masuk repository.
+Secret (database password, AI API key, Midtrans credential, SSH private key) **tidak boleh** masuk repository.
 
 ## 28. Testing
 
@@ -537,7 +542,7 @@ Project 3 sengaja fokus pada dua intelligent feature: **AI Assistant** dan **Sma
 | Vector Search | pgvector |
 | AI | Gemini API |
 | Payment | Midtrans Sandbox |
-| Authentication | Sanctum (React SPA), JWT (Mobile) |
+| Authentication | Sanctum token (Bearer) untuk web dan mobile |
 | Version Control | Git / GitHub |
 | CI/CD | GitHub Actions |
 | Deployment | VPS + Nginx + HTTPS |
