@@ -81,7 +81,7 @@ Taruh di `src/styles/tokens.css` dan impor sekali di entry point. Jangan menulis
 | Merek di kartu login | 22 / Bold | `--color-primary` |
 | Input & teks pendukung login | 13 / Regular | `--color-text-muted` |
 
-**[Cek]** Tanggal dan tombol "Filter" di Figma memakai **Poppins SemiBold 12**, sedangkan semua lainnya Inter. Saran: pakai Inter saja agar konsisten.
+Font tunggal **Inter**. Teks tanggal dan tombol "Filter" yang tadinya Poppins sudah diganti ke Inter di Figma.
 
 **[Usulan]** Ukuran 10–12px untuk isi tabel dan label cukup kecil. Pertimbangkan minimal 13–14px untuk isi tabel.
 
@@ -205,6 +205,47 @@ export const NAV = {
 
 ## 6. Integrasi & kebiasaan UI
 
+- **Autentikasi: token Sanctum (Bearer).** Satu instance axios, token ditempel otomatis, respons 401 membersihkan token dan mengarahkan ke `/login`:
+
+```js
+// src/services/tokenStore.js — token di memori + sessionStorage (bukan localStorage)
+let token = sessionStorage.getItem('mediva_token');
+export const getToken = () => token;
+export const setToken = (t) => { token = t; sessionStorage.setItem('mediva_token', t); };
+export const clearToken = () => { token = null; sessionStorage.removeItem('mediva_token'); };
+```
+
+```js
+// src/services/api.js
+import axios from 'axios';
+import { getToken, clearToken } from './tokenStore';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: { Accept: 'application/json' },
+});
+
+api.interceptors.request.use((cfg) => {
+  const t = getToken();
+  if (t) cfg.headers.Authorization = `Bearer ${t}`;
+  return cfg;
+});
+
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      clearToken();
+      window.location.assign('/login');
+    }
+    return Promise.reject(err);
+  }
+);
+
+export default api;
+```
+
+  Jangan memakai `dangerouslySetInnerHTML`, karena token yang bisa dibaca JavaScript rentan bila terjadi XSS. Masa berlaku token web dibuat pendek (lihat `PRD.md` §16).
 - Semua pemanggilan API lewat `src/services/` (satu instance axios, base URL dari `import.meta.env`), bukan langsung di komponen.
 - Format respons backend: `{ status, message, data }`. Error validasi 422 ditampilkan di bawah input terkait.
 - **[Usulan] State yang belum didesain:** hover/focus/disabled tombol dan input, skeleton loading tabel, toast sukses/gagal (di desain mobile ada toast "Berhasil Menambahkan" yang bisa jadi acuan gaya), dialog konfirmasi hapus, halaman 404/403.
@@ -219,6 +260,8 @@ export const NAV = {
 1. **Peran admin mengikuti Figma:** admin hanya memantau (Beranda admin, Kelola Pengguna, Data Obat hanya lihat, Laporan PDF/Excel). `PRD.md` v1.1 sudah disamakan.
 2. **Login boleh tetap draf:** area robot menunggu aset 3D. Langkah pembuatannya ada di bagian 9.
 3. **Lebar border seragam 2px** (token `--border-width-card`).
+4. **Autentikasi memakai token Sanctum (Bearer) untuk web dan mobile.** Tidak ada JWT dan tidak ada cookie SPA. `PRD.md` §16 sudah disamakan.
+5. **Font tunggal Inter.** Poppins diganti di Figma dan di dokumen ini.
 
 ### Sudah diperbaiki di Figma (24 Oktober 2026)
 - Border 3px → 2px di semua frame web (9 elemen).
@@ -226,6 +269,7 @@ export const NAV = {
 - Layer ganda di panel grafik Beranda staf (`8:569`) dihapus. Frame lama "Kelola Obat" (`9:526`) **disembunyikan dan diberi nama "ARSIP"**. Hapus manual bila sudah yakin.
 - Judul, subjudul, label peran, dan avatar di frame Kelola Obat sekarang berada di dalam frame (sebelumnya lepas di kanvas).
 - Teks "v1.0" di kartu login digeser ke dalam kartu.
+- Font Poppins diganti Inter pada 9 teks (tanggal dan tombol "Filter"). Tidak ada Poppins tersisa di frame web.
 - Salah ketik diperbaiki (6 teks): "pergerakkan" → "pergerakan", "onlline" → "online", "Detai" → "Detail", "Member KinaraPharma" → "Member Mediva".
 
 ### Kontras setelah perbaikan (hitungan WCAG, minimal 4,5:1 untuk teks kecil)
@@ -241,10 +285,8 @@ export const NAV = {
 Aturan: `--color-accent` (`#42a5f5`) hanya untuk dekorasi dan grafik. Jangan dipakai sebagai warna teks atau latar teks putih (rasio putih di `#42a5f5` hanya 2,65).
 
 ### Masih terbuka
-1. **[Cek] Cara login web.** PRD menyebut Sanctum mode SPA (cookie + CSRF), tetapi backend saat ini mengeluarkan token Sanctum biasa dari `/login`. Putuskan satu pendekatan sebelum membuat halaman login. Jangan simpan token di `localStorage` (rawan XSS).
-2. **[Usulan] Font Poppins** pada tanggal dan tombol "Filter" di Figma sebaiknya diganti Inter agar konsisten.
-3. **[Usulan]** Halaman Login belum memakai aset logo asli, ruang kosong di bawah kartu masih ada, dan latarnya masih putih (dashboard memakai `#eaf5ff`). Rapikan saat robot sudah masuk.
-4. **[Usulan]** State yang belum didesain (hover, focus, disabled, loading, error, dialog konfirmasi hapus, 404/403) dan versi responsif.
+1. **[Usulan]** Halaman Login belum memakai aset logo asli, ruang kosong di bawah kartu masih ada, dan latarnya masih putih (dashboard memakai `#eaf5ff`). Rapikan saat robot sudah masuk.
+2. **[Usulan]** State yang belum didesain (hover, focus, disabled, loading, error, dialog konfirmasi hapus, 404/403) dan versi responsif.
 
 ## 8. Urutan pengerjaan frontend
 
@@ -326,4 +368,3 @@ useGLTF.preload('/models/mediva-robot.glb');
 **Selesai kalau:** kepala mengikuti kursor dengan halus, kedua tangan terlihat menopang tepi atas kartu, model dimuat di bawah 2 detik pada koneksi biasa, dan login tetap berfungsi tanpa robot.
 
 Catatan: ikon asisten kecil di pojok kanan bawah (kepala saja) ada di aplikasi mobile Flutter, di luar dokumen ini. Prompt Tripo untuk kepala saja ada di percakapan sebelumnya.
-
