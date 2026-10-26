@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement('ALTER TABLE obat_embeddings ADD COLUMN embedding extensions.vector(768);');
+        DB::statement('ALTER TABLE obat_embeddings ADD COLUMN embedding vector(768);');
     }
 
     public function down(): void
