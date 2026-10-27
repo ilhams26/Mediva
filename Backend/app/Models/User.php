@@ -30,6 +30,7 @@ class User extends Authenticatable
         'otp_verified_at',
         'otp_expired_at',
         'is_active',
+        'otp_attempts',
     ];
 
     /**
@@ -40,6 +41,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'otp',
+        'otp_attempts',
         'remember_token',
     ];
 
@@ -56,6 +58,7 @@ class User extends Authenticatable
             'otp_verified_at' => 'datetime',
             'otp_expired_at' => 'datetime',
             'is_active' => 'boolean',
+            'otp_attempts' => 'integer',
         ];
     }
 
