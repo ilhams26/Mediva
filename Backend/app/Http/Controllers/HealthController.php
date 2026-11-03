@@ -2,35 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
+/**
+ * Controller untuk endpoint kesehatan API.
+ * Digunakan untuk memastikan server, database, dan konfigurasi dasar berjalan normal.
+ */
 class HealthController extends Controller
 {
-    use ApiResponse;
-
     /**
-     * Memeriksa kesehatan API dan koneksi database.
+     * Cek status kesehatan API secara menyeluruh.
+     * Mengembalikan status server, koneksi database, versi aplikasi, dan timestamp saat ini.
      *
      * @return JsonResponse
      */
     public function check(): JsonResponse
     {
-        $databaseStatus = 'connected';
+        $dbStatus = 'ok';
+        $dbError  = null;
+
         try {
             DB::connection()->getPdo();
-        } catch (Throwable $e) {
-            $databaseStatus = 'disconnected';
+        } catch (\Throwable $e) {
+            $dbStatus = 'error';
+            $dbError  = app()->isProduction() ? 'Koneksi database gagal.' : $e->getMessage();
         }
 
-        return $this->successResponse([
-            'api'         => 'healthy',
-            'database'    => $databaseStatus,
-            'timestamp'   => now()->toIso8601String(),
-            'version'     => '1.0.0',
-            'environment' => config('app.env'),
-        ], 'API Mediva berjalan dengan normal.');
+        $allOk = $dbStatus === 'ok';
+
+        return $this->success(
+            data: [
+                'app'      => config('app.name'),
+                'env'      => config('app.env'),
+                'version'  => '1.0.0',
+                'server'   => 'ok',
+                'database' => $dbStatus,
+                'db_error' => $dbError,
+                'time'     => now()->toIso8601String(),
+                'timezone' => config('app.timezone'),
+            ],
+            message: $allOk ? 'API berjalan normal.' : 'API berjalan, tapi ada masalah.',
+            code: $allOk ? 200 : 503,
+        );
     }
 }
