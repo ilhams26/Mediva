@@ -48,9 +48,12 @@ return [
     | considered expired. This will override any values set in the token's
     | "expires_at" attribute, but first-party sessions are not affected.
     |
+    | Default: 480 minutes (8 hours) for web staff/admin security.
+    | Mobile tokens can override this with expiresAt parameter.
+    |
     */
 
-    'expiration' => 10000,
+    'expiration' => 480,
 
     /*
     |--------------------------------------------------------------------------
