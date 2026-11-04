@@ -1,7 +1,8 @@
-import StaffDashboard from './pages/StaffDashboard/StaffDashboard'
+
+import StaffDashboard from "./pages/StaffDashboard/StaffDashboard.jsx";
 
 function App() {
-    return <StaffDashboard />
+  return <StaffDashboard />;
 }
 
-export default App
+export default App;
