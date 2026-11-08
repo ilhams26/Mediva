@@ -11,25 +11,36 @@ use App\Http\Controllers\ObatController;
 // ============================================
 
 // Health Check - untuk monitoring server dan database
-Route::get('/health', [HealthController::class, 'check']);
+Route::get('/health', [HealthController::class, 'check'])
+    ->name('health');
 
 // Authentication
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:7,1');
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/register', [AuthController::class, 'register'])
+    ->name('register')
+    ->middleware('throttle:7,1');
+
+Route::post('/login', [AuthController::class, 'login'])
+    ->name('login')
+    ->middleware('throttle:5,1');
 
 // ============================================
 // PROTECTED ENDPOINTS (Perlu Bearer Token)
 // ============================================
 
-Route::get('/obat/count', [ObatController::class, 'count']);
-
 Route::middleware('auth:sanctum')->group(function () {
-
-    Route::post('/logout', [AuthController::class, 'logout']);
+    
+    // User endpoints
+    Route::post('/logout', [AuthController::class, 'logout'])
+        ->name('logout');
+    
     Route::get('/user', function (Request $request) {
         return $request->user();
-    });
+    })->name('user');
 
-    Route::get('/obat/count', [ObatController::class, 'count'])->middleware('role:admin');
+    // Admin only endpoints
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/obat/count', [ObatController::class, 'count'])
+            ->name('obat.count');
+    });
 
 });
