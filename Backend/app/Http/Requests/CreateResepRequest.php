@@ -15,9 +15,8 @@ class CreateResepRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'obat_id' => 'required|exists:obat,id',
-            'deskripsi_keluhan' => 'required|string|max:1000',
-            'foto_resep' => 'nullable|string|max:500',
+            'order_id' => 'nullable|exists:orders,id',
+            'foto_resep' => 'required|string|max:500',
         ];
     }
 
@@ -26,10 +25,8 @@ class CreateResepRequest extends FormRequest
         return [
             'user_id.required' => 'User ID wajib diisi',
             'user_id.exists' => 'User tidak ditemukan',
-            'obat_id.required' => 'Obat ID wajib diisi',
-            'obat_id.exists' => 'Obat tidak ditemukan',
-            'deskripsi_keluhan.required' => 'Deskripsi keluhan wajib diisi',
-            'deskripsi_keluhan.max' => 'Deskripsi keluhan maksimal 1000 karakter',
+            'order_id.exists' => 'Order tidak ditemukan',
+            'foto_resep.required' => 'Foto resep wajib diisi',
             'foto_resep.max' => 'URL foto resep maksimal 500 karakter',
         ];
     }
