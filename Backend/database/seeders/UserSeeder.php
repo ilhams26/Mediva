@@ -12,12 +12,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+
         // Admin
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['username' => 'admin'],
             [
                 'no_hp' => '081234567890',
-                'password' => 'admin123',
+                'password' => '12345',
                 'role' => 'admin',
                 'jenis_kelamin' => 'L',
                 'tanggal_lahir' => '1995-01-01',
@@ -26,11 +27,11 @@ class UserSeeder extends Seeder
         );
 
         // Staf
-        User::firstOrCreate(
-            ['username' => 'staf_mediva'],
+        User::updateOrCreate(
+            ['username' => 'staf'],
             [
                 'no_hp' => '081234567891',
-                'password' => 'staf123',
+                'password' => '12345',
                 'role' => 'staf',
                 'jenis_kelamin' => 'P',
                 'tanggal_lahir' => '1998-05-15',
@@ -39,13 +40,35 @@ class UserSeeder extends Seeder
         );
 
         // Pembeli
-        User::firstOrCreate(
-            ['username' => 'budi_pembeli'],
+        User::updateOrCreate(
+            ['username' => 'ilham'],
             [
                 'no_hp' => '081234567892',
-                'password' => 'pembeli123',
+                'password' => '12345',
                 'role' => 'pembeli',
                 'jenis_kelamin' => 'L',
+                'tanggal_lahir' => '2000-08-20',
+                'is_active' => true,
+            ]
+        );
+        User::updateOrCreate(
+            ['username' => 'tsaabita'],
+            [
+                'no_hp' => '081234567893',
+                'password' => '12345',
+                'role' => 'pembeli',
+                'jenis_kelamin' => 'P',
+                'tanggal_lahir' => '2000-08-20',
+                'is_active' => true,
+            ]
+        );
+        User::updateOrCreate(
+            ['username' => 'aisiti'],
+            [
+                'no_hp' => '081234567894',
+                'password' => '12345',
+                'role' => 'pembeli',
+                'jenis_kelamin' => 'P',
                 'tanggal_lahir' => '2000-08-20',
                 'is_active' => true,
             ]
