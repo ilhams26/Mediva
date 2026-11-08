@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ResepService;
 use App\Http\Requests\CreateResepRequest;
-use App\Http\Requests\UpdateResepStatusRequest;
+use App\Http\Requests\ValidateResepRequest;
 use App\Http\Resources\ResepResource;
 use Illuminate\Http\Request;
 
@@ -69,13 +69,13 @@ class ResepController extends Controller
         }
     }
 
-    public function updateStatus(UpdateResepStatusRequest $request, $id)
+    public function validate(ValidateResepRequest $request, $id)
     {
         try {
-            $resep = $this->resepService->updateResepStatus(
+            $resep = $this->resepService->validateResep(
                 $id,
                 $request->validated()['status'],
-                $request->validated()['catatan_apoteker'] ?? null
+                $request->user()->id
             );
 
             return new ResepResource($resep);
@@ -92,7 +92,7 @@ class ResepController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengupdate status resep',
+                'message' => 'Gagal memvalidasi resep',
                 'error' => $e->getMessage()
             ], 500);
         }
