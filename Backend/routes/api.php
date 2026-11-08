@@ -75,8 +75,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ResepController::class, 'show'])
             ->name('resep.show');
         
-        Route::patch('/{id}/status', [ResepController::class, 'updateStatus'])
-            ->name('resep.updateStatus')
+        Route::post('/{id}/validate', [ResepController::class, 'validate'])
+            ->name('resep.validate')
             ->middleware('role:admin');
     });
 

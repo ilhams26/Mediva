@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateResepStatusRequest extends FormRequest
+class ValidateResepRequest extends FormRequest
 {
     public function authorize()
     {
@@ -15,8 +15,7 @@ class UpdateResepStatusRequest extends FormRequest
     public function rules()
     {
         return [
-            'status' => ['required', Rule::in(['pending', 'disetujui', 'ditolak'])],
-            'catatan_apoteker' => 'nullable|string|max:1000',
+            'status' => ['required', Rule::in(['disetujui', 'ditolak'])],
         ];
     }
 
@@ -24,8 +23,7 @@ class UpdateResepStatusRequest extends FormRequest
     {
         return [
             'status.required' => 'Status wajib diisi',
-            'status.in' => 'Status harus pending, disetujui, atau ditolak',
-            'catatan_apoteker.max' => 'Catatan apoteker maksimal 1000 karakter',
+            'status.in' => 'Status harus disetujui atau ditolak',
         ];
     }
 }
