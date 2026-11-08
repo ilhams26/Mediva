@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Resep;
-use App\Models\Obat;
+use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -11,7 +11,7 @@ class ResepService
 {
     public function getAllResep($filters = [])
     {
-        $query = Resep::with(['user', 'obat']);
+        $query = Resep::with(['user', 'order', 'validator']);
 
         if (isset($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
@@ -26,7 +26,7 @@ class ResepService
 
     public function getResepById($id)
     {
-        return Resep::with(['user', 'obat'])->findOrFail($id);
+        return Resep::with(['user', 'order', 'validator'])->findOrFail($id);
     }
 
     public function createResep(array $data)
@@ -34,21 +34,23 @@ class ResepService
         DB::beginTransaction();
 
         try {
-            $obat = Obat::findOrFail($data['obat_id']);
+            if (isset($data['order_id'])) {
+                Order::findOrFail($data['order_id']);
+            }
 
             $resep = Resep::create([
                 'user_id' => $data['user_id'],
-                'obat_id' => $data['obat_id'],
-                'deskripsi_keluhan' => $data['deskripsi_keluhan'],
-                'foto_resep' => $data['foto_resep'] ?? null,
-                'catatan_apoteker' => null,
+                'order_id' => $data['order_id'] ?? null,
+                'foto_resep' => $data['foto_resep'],
                 'status' => 'pending',
+                'validated_by' => null,
+                'validated_at' => null,
             ]);
 
             Log::info('Resep created', ['resep_id' => $resep->id]);
 
             DB::commit();
-            return $resep->load(['user', 'obat']);
+            return $resep->load(['user', 'order']);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to create resep: ' . $e->getMessage());
@@ -56,56 +58,39 @@ class ResepService
         }
     }
 
-    public function updateResepStatus($id, string $status, ?string $catatanApoteker = null)
+    public function validateResep($id, string $status, int $validatedBy)
     {
         DB::beginTransaction();
 
         try {
             $resep = Resep::findOrFail($id);
 
-            $validStatuses = ['pending', 'disetujui', 'ditolak'];
+            $validStatuses = ['disetujui', 'ditolak'];
             if (!in_array($status, $validStatuses)) {
-                throw new \InvalidArgumentException('Status tidak valid');
+                throw new \InvalidArgumentException('Status harus disetujui atau ditolak');
             }
 
-            if ($resep->status === 'disetujui' || $resep->status === 'ditolak') {
-                throw new \InvalidArgumentException('Resep sudah diproses, tidak bisa diubah');
+            if ($resep->status !== 'pending') {
+                throw new \InvalidArgumentException('Resep sudah divalidasi, tidak bisa diubah');
             }
 
             $resep->status = $status;
-            
-            if ($catatanApoteker) {
-                $resep->catatan_apoteker = $catatanApoteker;
-            }
-
+            $resep->validated_by = $validatedBy;
+            $resep->validated_at = now();
             $resep->save();
 
-            Log::info('Resep status updated', [
+            Log::info('Resep validated', [
                 'resep_id' => $id,
-                'old_status' => $resep->getOriginal('status'),
-                'new_status' => $status
+                'status' => $status,
+                'validated_by' => $validatedBy
             ]);
 
             DB::commit();
-            return $resep->load(['user', 'obat']);
+            return $resep->load(['user', 'order', 'validator']);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Failed to update resep status: ' . $e->getMessage());
+            Log::error('Failed to validate resep: ' . $e->getMessage());
             throw $e;
         }
-    }
-
-    public function deleteResep($id)
-    {
-        $resep = Resep::findOrFail($id);
-
-        if ($resep->status !== 'pending') {
-            throw new \InvalidArgumentException('Hanya resep dengan status pending yang bisa dihapus');
-        }
-
-        $resep->delete();
-        Log::info('Resep deleted', ['resep_id' => $id]);
-
-        return true;
     }
 }

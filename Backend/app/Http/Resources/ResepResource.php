@@ -15,17 +15,21 @@ class ResepResource extends JsonResource
                 'nama' => $this->user->nama,
                 'email' => $this->user->email,
             ],
-            'obat' => [
-                'id' => $this->obat->id,
-                'nama' => $this->obat->nama,
-                'kategori' => $this->obat->kategori,
-            ],
-            'deskripsi_keluhan' => $this->deskripsi_keluhan,
+            'order' => $this->order ? [
+                'id' => $this->order->id,
+                'order_code' => $this->order->order_code,
+                'total' => $this->order->total,
+            ] : null,
             'foto_resep' => $this->foto_resep,
-            'catatan_apoteker' => $this->catatan_apoteker,
             'status' => $this->status,
+            'validator' => $this->validator ? [
+                'id' => $this->validator->id,
+                'nama' => $this->validator->nama,
+            ] : null,
+            'validated_at' => $this->validated_at ? $this->validated_at->format('Y-m-d H:i:s') : null,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
     }
 }
+
