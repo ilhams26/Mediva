@@ -1,13 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-<<<<<<< Updated upstream
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ResepController;
-=======
 use App\Http\Controllers\UserController;
->>>>>>> Stashed changes
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ObatController;
