@@ -21,13 +21,12 @@ class UserResource extends JsonResource
         ];
 
         return [
-            'kode'          => 'USR-' . str_pad($this->id, 3, '0', STR_PAD_LEFT),
             'id'            => $this->id,
-            'nama_pengguna' => $this->username,
             'username'      => $this->username,
             'no_hp'         => $this->no_hp,
             'role'          => $roleLabels[$this->role] ?? $this->role,
             'jenis_kelamin' => $this->jenis_kelamin,
+            'tanggal_lahir' => $this->tanggal_lahir,
             'is_active'     => $this->is_active,
             'created_at'    => $this->created_at?->toISOString(),
         ];

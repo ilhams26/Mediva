@@ -39,7 +39,7 @@ class UserService
         $user->fill([
             'username'      => $data['username'],
             'no_hp'         => $data['no_hp'],
-            'password'      => $data['password'],
+            'password'      => Hash::make($data['password']),
             'role'          => $data['role'],
             'jenis_kelamin' => $data['jenis_kelamin'] ?? null,
             'tanggal_lahir' => $data['tanggal_lahir'] ?? null,
@@ -67,7 +67,7 @@ class UserService
 
         // Password hanya di-update jika disertakan
         if (!empty($data['password'])) {
-            $fillable['password'] = $data['password'];
+            $fillable['password'] = Hash::make($data['password']);
         }
 
         $user->fill($fillable);
