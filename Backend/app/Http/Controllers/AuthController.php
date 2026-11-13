@@ -25,21 +25,21 @@ class AuthController extends Controller
     {
         $result = $this->authService->registerUser($request->validated());
 
-        return $this->success($result,'Pendaftaran Berhasil',201);
+        return $this->success($result, 'Pendaftaran Berhasil', 201);
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
         $result = $this->authService->loginUser($request->validated());
 
-        return $this->success($result,'Login berhasil',200);
+        return $this->success($result, 'Login berhasil', 200);
     }
 
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
-        return $this->success(null,'Logout berhasil',200);
+        return $this->success(null, 'Logout berhasil', 200);
 
     }
 
