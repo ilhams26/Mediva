@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ObatController;
 
-// ============================================
 // PUBLIC ENDPOINTS (Tidak perlu authentication)
-// ============================================
 
 // Health Check - untuk monitoring server dan database
 Route::get('/health', [HealthController::class, 'check'])
@@ -25,9 +23,7 @@ Route::post('/login', [AuthController::class, 'login'])
     ->name('login')
     ->middleware('throttle:5,1');
 
-// ============================================
 // PROTECTED ENDPOINTS (Perlu Bearer Token)
-// ============================================
 
 Route::middleware('auth:sanctum')->group(function () {
     
