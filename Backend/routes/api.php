@@ -7,6 +7,7 @@ use App\Http\Controllers\ResepController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ObatController;
+use App\Http\Controllers\ForgotPasswordController;
 
 // ============================================
 // PUBLIC ENDPOINTS (Tidak perlu authentication)
@@ -24,6 +25,29 @@ Route::post('/register', [AuthController::class, 'register'])
 Route::post('/login', [AuthController::class, 'login'])
     ->name('login')
     ->middleware('throttle:5,1');
+
+// Forgot Password
+Route::post('/forgot-password', [
+    ForgotPasswordController::class,
+    'requestOtp'
+])->middleware('throttle:otp');
+
+Route::post('/verify-otp', [
+    ForgotPasswordController::class,
+    'verifyOtp'
+])->middleware('throttle:otp');
+
+Route::post('/reset-password', [
+    ForgotPasswordController::class,
+    'resetPassword'
+]);
+
+// Change Password
+Route::post('/change-password', [
+    AuthController::class,
+    'changePassword'
+])->middleware('auth:sanctum');
+
 
 // ============================================
 // PROTECTED ENDPOINTS (Perlu Bearer Token)

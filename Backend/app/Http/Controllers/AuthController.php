@@ -6,6 +6,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 use App\Traits\ApiResponse;
 use App\Services\AuthService;
+use App\Http\Requests\ChangePasswordRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -40,5 +41,16 @@ class AuthController extends Controller
 
         return $this->success(null,'Logout berhasil',200);
 
+    }
+
+    public function changePassword(ChangePasswordRequest $request): JsonResponse 
+    {
+        $this->authService->changePassword(
+            $request->user(),
+            $request->validated('current_password'),
+            $request->validated('password')
+        );
+
+        return $this->success(null, 'Kata sandi berhasil diubah.');
     }
 }

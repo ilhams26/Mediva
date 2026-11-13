@@ -22,7 +22,6 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
                 'jenis_kelamin' => 'L',
                 'tanggal_lahir' => '1995-01-01',
-                'is_active' => true,
             ]
         );
 
@@ -35,7 +34,6 @@ class UserSeeder extends Seeder
                 'role' => 'staf',
                 'jenis_kelamin' => 'P',
                 'tanggal_lahir' => '1998-05-15',
-                'is_active' => true,
             ]
         );
 
@@ -48,7 +46,6 @@ class UserSeeder extends Seeder
                 'role' => 'pembeli',
                 'jenis_kelamin' => 'L',
                 'tanggal_lahir' => '2000-08-20',
-                'is_active' => true,
             ]
         );
         User::updateOrCreate(
@@ -59,7 +56,6 @@ class UserSeeder extends Seeder
                 'role' => 'pembeli',
                 'jenis_kelamin' => 'P',
                 'tanggal_lahir' => '2000-08-20',
-                'is_active' => true,
             ]
         );
         User::updateOrCreate(
@@ -70,7 +66,6 @@ class UserSeeder extends Seeder
                 'role' => 'pembeli',
                 'jenis_kelamin' => 'P',
                 'tanggal_lahir' => '2000-08-20',
-                'is_active' => true,
             ]
         );
     }
