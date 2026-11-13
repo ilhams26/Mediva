@@ -48,4 +48,28 @@ class AuthService
             'token' => $user->createToken('mediva_auth_token')->plainTextToken,
         ];
     }
+    
+    public function resetPassword(User $user, string $newPassword): void
+    {
+        $user->password = $newPassword;
+        $user->otp = null;
+        $user->otp_expired_at = null;
+        $user->save();
+
+        $user->tokens()->delete();
+    }
+    
+    public function changePassword(User $user,string $curretPassword, string $newPassword): void
+    {
+        if (! Hash::check($curretPassword, $user->password)){
+            throw ValidationException::withMessages([
+                'current_password' => [
+                    'Password saat ini tidak sesuai.'
+                ],
+            ]);
+        }
+
+        $user->password = $newPassword;
+        $user->tokens()->delete();
+    }
 }
