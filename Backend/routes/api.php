@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ResepController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ObatController;
@@ -78,6 +79,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/validate', [ResepController::class, 'validate'])
             ->name('resep.validate')
             ->middleware('role:admin');
+    });
+
+    // ── User Management (hanya admin) ──────────────────────────────────────────
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/users',                [UserController::class, 'index']);
+        Route::post('/users',               [UserController::class, 'store']);
+        Route::get('/users/{id}',           [UserController::class, 'show']);
+        Route::put('/users/{id}',           [UserController::class, 'update']);
+        Route::delete('/users/{id}',        [UserController::class, 'destroy']);
+        Route::patch('/users/{id}/status',  [UserController::class, 'toggleStatus']);
     });
 
 });
