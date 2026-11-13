@@ -1,100 +1,75 @@
-import { supabase } from '../lib/supabase';
+import api from "./api";
 
 /**
- * Mengambil daftar user (admin + staf) dari Supabase.
- * @param {string} search - kata kunci pencarian username
+ * Mengambil daftar user 
+ * @param {string} search 
  */
-export const getUsers = async (search = '') => {
-  let query = supabase
-    .from('users')
-    .select('id, username, no_hp, role, is_active, created_at')
-    .in('role', ['admin', 'staf'])
-    .order('created_at', { ascending: false });
-
-  if (search.trim()) {
-    query = query.ilike('username', `%${search.trim()}%`);
+export const getUsers = async (search = "") => {
+  try {
+    // Parameter pencarian akan dikirim ke backend
+    const response = await api.get("/users", {
+      params: { search: search.trim() },
+    });
+    return response.data.data ?? [];
+  } catch (error) {
+    console.error("Gagal mengambil daftar user:", error);
+    throw error;
   }
-
-  const { data, error } = await query;
-  if (error) throw error;
-  return data ?? [];
 };
 
 /**
- * Membuat user baru di Supabase.
+ * Membuat user baru melalui Laravel API.
  */
 export const createUser = async (payload) => {
-  const { data, error } = await supabase
-    .from('users')
-    .insert([{
-      username:      payload.username,
-      no_hp:         payload.no_hp,
-      password:      payload.password,  // hash di sisi backend/trigger jika ada
-      role:          payload.role.toLowerCase(),
-      jenis_kelamin: payload.jenis_kelamin ?? null,
-      tanggal_lahir: payload.tanggal_lahir ?? null,
-      is_active:     true,
-    }])
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    const response = await api.post("/users", payload);
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal membuat user:", error);
+    throw error;
+  }
 };
 
 /**
- * Memperbarui data user berdasarkan ID.
+ * Memperbarui data user berdasarkan ID melalui Laravel API.
  */
 export const updateUser = async (id, payload) => {
-  const updateData = {
-    username:      payload.username,
-    no_hp:         payload.no_hp,
-    role:          payload.role.toLowerCase(),
-    jenis_kelamin: payload.jenis_kelamin ?? null,
-    tanggal_lahir: payload.tanggal_lahir ?? null,
-  };
-  if (payload.password) {
-    updateData.password = payload.password;
+  try {
+    const response = await api.put(`/users/${id}`, payload);
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal memperbarui user:", error);
+    throw error;
   }
-
-  const { data, error } = await supabase
-    .from('users')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
 };
 
 /**
- * Menghapus user berdasarkan ID.
+ * Menghapus user berdasarkan ID melalui Laravel API.
  */
 export const deleteUser = async (id) => {
-  const { error } = await supabase
-    .from('users')
-    .delete()
-    .eq('id', id);
-
-  if (error) throw error;
+  try {
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menghapus user:", error);
+    throw error;
+  }
 };
 
 /**
- * Toggle status is_active user.
+ * Toggle status is_active user melalui Laravel API.
  */
 export const toggleUserStatus = async (id, currentStatus) => {
-  const { data, error } = await supabase
-    .from('users')
-    .update({ is_active: !currentStatus })
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
+  try {
+    // Kita buat endpoint khusus (PATCH) di Laravel untuk toggle status
+    const response = await api.patch(`/users/${id}/toggle-status`, {
+      is_active: !currentStatus,
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error("Gagal mengubah status user:", error);
+    throw error;
+  }
 };
 
-/** Format ID menjadi kode USR-001 */
-export const formatKode = (id) =>
-  'USR-' + String(id).padStart(3, '0');
+export const formatKode = (id) => "USR-" + String(id).padStart(3, "0");

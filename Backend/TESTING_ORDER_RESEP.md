@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-﻿# Testing Guide - Order Management & Resep (UPDATED)
-
-**SECURITY UPDATE:** Authorization telah diperbaiki. Pembeli hanya bisa akses data miliknya.
-=======
 # Testing Guide - Order Management & Resep
 
 Panduan pengujian untuk Fase 3: Order Management dan Resep menggunakan Postman.
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 
 ## Prerequisites
 
@@ -17,38 +11,6 @@ Panduan pengujian untuk Fase 3: Order Management dan Resep menggunakan Postman.
 
 ---
 
-<<<<<<< HEAD
-## PENTING: Perubahan Authorization
-
-### Yang Berubah:
-1. **POST /api/resep**: `user_id` sekarang otomatis diambil dari user yang login (tidak bisa atas nama orang lain)
-2. **GET /api/resep**: Pembeli hanya melihat resep miliknya, Admin/Staf bisa filter atau lihat semua
-3. **GET /api/resep/{id}**: Pembeli tidak bisa akses resep user lain (403 Forbidden)
-
-### Request Body Update:
-
-**OLD (DEPRECATED):**
-```json
-{
-    "user_id": 2,
-    "foto_resep": "https://example.com/resep.jpg"
-}
-```
-
-**NEW (CORRECT):**
-```json
-{
-    "foto_resep": "https://example.com/resep.jpg",
-    "order_id": 1
-}
-```
-
-`user_id` diambil otomatis dari `Authorization: Bearer {{token}}`
-
----
-
-=======
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 ## Alur Pengujian Lengkap
 
 ### Setup: Login dan Dapatkan Token
@@ -64,9 +26,6 @@ Panduan pengujian untuk Fase 3: Order Management dan Resep menggunakan Postman.
 }
 ```
 
-<<<<<<< HEAD
-**Action:** Simpan token ke `{{admin_token}}`
-=======
 **Ekspektasi Response (200):**
 ```json
 {
@@ -85,7 +44,6 @@ Panduan pengujian untuk Fase 3: Order Management dan Resep menggunakan Postman.
 ```
 
 **Action:** Simpan token ke environment variable `{{admin_token}}`
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 
 #### 2. Login sebagai Pembeli
 **Endpoint:** `POST {{base_url}}/api/login`
@@ -98,9 +56,6 @@ Panduan pengujian untuk Fase 3: Order Management dan Resep menggunakan Postman.
 }
 ```
 
-<<<<<<< HEAD
-**Action:** Simpan token ke `{{pembeli_token}}`
-=======
 **Ekspektasi Response (200):**
 ```json
 {
@@ -119,7 +74,6 @@ Panduan pengujian untuk Fase 3: Order Management dan Resep menggunakan Postman.
 ```
 
 **Action:** Simpan token ke environment variable `{{pembeli_token}}`
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 
 ---
 
@@ -138,23 +92,17 @@ Content-Type: application/json
 **Body (JSON):**
 ```json
 {
-<<<<<<< HEAD
-=======
     "user_id": 2,
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
     "items": [
         {
             "obat_id": 1,
             "quantity": 2,
             "harga": 50000
-<<<<<<< HEAD
-=======
         },
         {
             "obat_id": 2,
             "quantity": 1,
             "harga": 75000
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
         }
     ],
     "metode_pembayaran": "cash",
@@ -162,16 +110,6 @@ Content-Type: application/json
 }
 ```
 
-<<<<<<< HEAD
-**Validasi:**
-- ✅ Order code format: `ORD-YYYYMMDD-XXX`
-- ✅ Status awal: `pending`
-- ✅ Stok obat berkurang (FEFO)
-
----
-
-## B. Testing Resep Management (UPDATED)
-=======
 **Ekspektasi Response (201):**
 ```json
 {
@@ -378,7 +316,6 @@ Content-Type: application/json
 ---
 
 ## B. Testing Resep Management
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 
 ### B1. Upload Resep Baru (Pembeli)
 
@@ -402,17 +339,6 @@ Content-Type: application/json
 }
 ```
 
-<<<<<<< HEAD
-**Validasi:**
-- ✅ `user_id` otomatis dari token
-- ✅ Status awal: `pending`
-
----
-
-### B2. Melihat Daftar Resep
-
-#### Sebagai Pembeli:
-=======
 **Ekspektasi Response (201):**
 ```json
 {
@@ -446,38 +372,10 @@ Content-Type: application/json
 
 ### B2. Melihat Daftar Resep (Admin/Staf)
 
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 **Endpoint:** `GET {{base_url}}/api/resep`
 
 **Headers:**
 ```
-<<<<<<< HEAD
-Authorization: Bearer {{pembeli_token}}
-```
-
-**Validasi:**
-- ✅ Hanya menampilkan resep milik pembeli yang login
-- ❌ Tidak bisa filter `user_id` lain (otomatis filtered)
-
-#### Sebagai Admin/Staf:
-**Endpoint:** `GET {{base_url}}/api/resep?user_id=2&status=pending`
-
-**Headers:**
-```
-Authorization: Bearer {{admin_token}}
-```
-
-**Validasi:**
-- ✅ Bisa filter by `user_id`
-- ✅ Bisa filter by `status`
-- ✅ Bisa lihat semua resep
-
----
-
-### B3. Melihat Detail Resep (Authorization Test)
-
-#### Test Case 1: Pembeli Akses Resep Sendiri
-=======
 Authorization: Bearer {{admin_token}}
 ```
 
@@ -518,33 +416,10 @@ Authorization: Bearer {{admin_token}}
 
 ### B3. Melihat Detail Resep
 
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 **Endpoint:** `GET {{base_url}}/api/resep/1`
 
 **Headers:**
 ```
-<<<<<<< HEAD
-Authorization: Bearer {{pembeli_token}}
-```
-
-**Ekspektasi:** ✅ 200 OK (jika resep milik pembeli)
-
----
-
-#### Test Case 2: Pembeli Akses Resep Orang Lain
-**Endpoint:** `GET {{base_url}}/api/resep/99`
-
-**Headers:**
-```
-Authorization: Bearer {{pembeli_token}}
-```
-
-**Ekspektasi:** ❌ 403 Forbidden
-```json
-{
-    "success": false,
-    "message": "Anda tidak memiliki akses ke resep ini"
-=======
 Authorization: Bearer {{admin_token}}
 ```
 
@@ -569,29 +444,12 @@ Authorization: Bearer {{admin_token}}
         "validated_at": null,
         "created_at": "2026-11-09 12:00:00"
     }
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 }
 ```
 
 ---
 
-<<<<<<< HEAD
-#### Test Case 3: Admin Akses Resep Siapa Saja
-**Endpoint:** `GET {{base_url}}/api/resep/1`
-
-**Headers:**
-```
-Authorization: Bearer {{admin_token}}
-```
-
-**Ekspektasi:** ✅ 200 OK (admin bisa akses semua)
-
----
-
-### B4. Validasi Resep (Admin Only)
-=======
 ### B4. Validasi Resep - Approve (Admin)
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 
 **Endpoint:** `POST {{base_url}}/api/resep/1/validate`
 
@@ -608,20 +466,6 @@ Content-Type: application/json
 }
 ```
 
-<<<<<<< HEAD
-**Validasi:**
-- ✅ Admin bisa validate
-- ❌ Pembeli tidak bisa validate (403)
-- ✅ validated_by dan validated_at terisi otomatis
-
----
-
-## C. Test Cases Error Handling (NEW)
-
-### C1. Resep - Unauthorized Access
-
-**Endpoint:** `GET {{base_url}}/api/resep/999`
-=======
 **Ekspektasi Response (200):**
 ```json
 {
@@ -767,96 +611,22 @@ Content-Type: application/json
 ### C4. Authorization - Pembeli Akses Admin Endpoint
 
 **Endpoint:** `PATCH {{base_url}}/api/orders/1/status`
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 
 **Headers:**
 ```
 Authorization: Bearer {{pembeli_token}}
 ```
 
-<<<<<<< HEAD
-**Scenario:** Resep ID 999 milik user lain
-
-=======
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 **Ekspektasi Response (403):**
 ```json
 {
     "success": false,
-<<<<<<< HEAD
-    "message": "Anda tidak memiliki akses ke resep ini"
-=======
     "message": "Anda tidak memiliki akses"
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 }
 ```
 
 ---
 
-<<<<<<< HEAD
-### C2. Resep - Create Impersonation Attempt (BLOCKED)
-
-**Endpoint:** `POST {{base_url}}/api/resep`
-
-**Body (user_id akan diabaikan):**
-```json
-{
-    "user_id": 999,
-    "foto_resep": "https://example.com/fake.jpg"
-}
-```
-
-**Validasi:**
-- ✅ `user_id` dari body diabaikan
-- ✅ `user_id` diambil dari `$request->user()->id`
-- ✅ Tidak bisa create resep atas nama orang lain
-
----
-
-## D. Checklist Testing Completion (UPDATED)
-
-### Resep Authorization (NEW)
-- [ ] Pembeli hanya bisa GET own resep
-- [ ] Pembeli tidak bisa GET resep orang lain (403)
-- [ ] Admin bisa GET all resep
-- [ ] POST resep force user_id dari auth
-- [ ] POST resep ignore user_id dari body
-- [ ] Pembeli tidak bisa validate resep (403)
-- [ ] Admin bisa validate resep
-
-### Order Management
-- [ ] Create order dengan auth
-- [ ] List orders (filtered by role)
-- [ ] Cancel order dengan authorization check
-
----
-
-## E. Security Checklist
-
-### ✅ Fixed:
-- ✅ Database password tidak lagi di phpunit.xml
-- ✅ Resep authorization: pembeli hanya akses miliknya
-- ✅ Resep store: tidak bisa impersonation
-- ✅ Testing menggunakan SQLite in-memory (aman)
-
-### ⚠️ Still Need Attention:
-- [ ] Rotate default user passwords di UserSeeder (jika deploy production)
-- [ ] Add rate limiting untuk sensitive endpoints
-- [ ] Add audit log untuk validation actions
-
----
-
-## F. Tips Debugging
-
-1. **Cek Auth User:** `$request->user()` di controller
-2. **Cek Logs:** `tail -f storage/logs/laravel.log`
-3. **Test dengan 2 user berbeda:** Pastikan isolation bekerja
-
-**Query Debug Authorization:**
-```sql
-SELECT id, user_id, status FROM resep WHERE user_id = 2;
-SELECT id, username, role FROM users;
-=======
 ## D. Checklist Testing Completion
 
 ### Order Management
@@ -900,19 +670,10 @@ SELECT id, username, role FROM users;
 ```sql
 SELECT * FROM pergerakan_stok WHERE obat_id = 1 ORDER BY created_at DESC LIMIT 10;
 SELECT * FROM batch WHERE obat_id = 1 ORDER BY expired_date ASC;
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
 ```
 
 ---
 
-<<<<<<< HEAD
-## Next Steps
-
-Setelah testing selesai:
-1. Verify all authorization rules
-2. Test dengan multiple users
-3. Commit: `[TEST] Security & Authorization verified`
-=======
 ## F. Next Steps
 
 Setelah testing selesai:
@@ -920,4 +681,3 @@ Setelah testing selesai:
 2. Update dokumentasi ENDPOINTS.md
 3. Commit: `[TEST] Fase 3 - Order & Resep tested and verified`
 4. Lanjut ke Fase 3 berikutnya (Notifikasi, Payment, dll)
->>>>>>> 6a1b0f81105332dab859c5537fad784881a7f8d6
