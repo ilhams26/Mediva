@@ -14,18 +14,17 @@ class VerifyOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'no_hp' => [
-                'required',
-                'string',
-                'max:20',
-                'exists:users,no_hp'
-            ],
-            'otp' => [
-                'required',
-                'string',
-                'size:6',
-                'regex:/^[0-9]{6}$/'
-            ],
+            'identifier' => 'required|string',
+            'otp' => 'required|digits:6',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'identifier.required' => 'Username atau nomor HP wajib diisi',
+            'otp.required' => 'Kode OTP wajib diisi',
+            'otp.digits' => 'Kode OTP harus 6 digit angka',
         ];
     }
 }

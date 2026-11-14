@@ -14,12 +14,14 @@ class ForgotPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'no_hp' => [
-                'required',
-                'string',
-                'max:20',
-                'exists:users,no_hp'
-            ],
+            'identifier' => 'required|string',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'identifier.required' => 'Username atau nomor HP wajib diisi',
         ];
     }
 }
