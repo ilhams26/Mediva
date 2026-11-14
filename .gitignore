@@ -1,0 +1,58 @@
+
+# MEDIVA - ROOT GITIGNORE
+
+# Personal AI tools and configurations
+.kiro/
+.aider-desk/
+.agents/
+agent.md
+workflow.md
+design.md
+
+# Node.js dependencies
+**/node_modules/
+
+# Composer dependencies
+**/vendor/
+
+# Build output
+**/dist/
+**/build/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# IDE and editor
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Coverage and test output
+coverage/
+.phpunit.cache/
+
+# Laravel generated files
+Backend/storage/*.key
+Backend/storage/framework/cache/*
+Backend/storage/framework/sessions/*
+Backend/storage/framework/views/*
+Backend/storage/logs/*
+
+# Local database files
+*.sqlite
+*.sqlite3
