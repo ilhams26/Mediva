@@ -65,6 +65,12 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'otp' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/otp.log'),
+            'level' => 'info',
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
