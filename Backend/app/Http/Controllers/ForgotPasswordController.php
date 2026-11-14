@@ -3,134 +3,94 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ForgotPasswordRequest;
-use App\Http\Requests\VerifyOtpRequest;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\VerifyOtpRequest;
 use App\Models\User;
-use App\Services\AuthService;
 use App\Services\OTPService;
-use App\Traits\ApiResponse;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class ForgotPasswordController extends Controller
 {
-    use ApiResponse;
+    public function __construct(private OTPService $otpService) {}
 
-    public function __construct(
-        private readonly OTPService $otpService,
-        private readonly AuthService $authService
-    ) {}
-
-    public function requestOtp(
-        ForgotPasswordRequest $request
-    ): JsonResponse {
-        $user = User::where('no_hp', $request->validated('no_hp'))
-            ->where('is_active', true)
+    public function sendOtp(ForgotPasswordRequest $request)
+    {
+        $user = User::where('username', $request->identifier)
+            ->orWhere('no_hp', $request->identifier)
             ->first();
 
-        if (! $user) {
-            return $this->error(
-                'Akun tidak dapat menggunakan pemulihan kata sandi.',
-                422
-            );
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
         }
 
-        $cooldownKey = 'otp_cooldown:' . hash(
-            'sha256',
-            $user->no_hp
-        );
-
-        if (! Cache::add(
-            $cooldownKey,
-            true,
-            now()->addMinute()
-        )) {
-            return $this->error(
-                'Permintaan OTP baru dapat dilakukan setelah 1 menit.',
-                429
-            );
-        }
-
-        $otp = $this->otpService->generate();
-
+        $otp = $this->otpService->generateOTP($user);
         $this->otpService->sendOTP($user, $otp);
 
-        return $this->success(
-            null,
-            'Permintaan OTP berhasil diproses. Kode berlaku selama 5 menit.'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP telah dikirim',
+            'data' => [
+                'expires_at' => $user->otp_expired_at->format('Y-m-d H:i:s')
+            ]
+        ]);
     }
 
-    public function verifyOtp(
-        VerifyOtpRequest $request
-    ): JsonResponse {
-        $user = User::where('no_hp', $request->validated('no_hp'))
-            ->where('is_active', true)
+    public function verifyOtp(VerifyOtpRequest $request)
+    {
+        $user = User::where('username', $request->identifier)
+            ->orWhere('no_hp', $request->identifier)
             ->first();
 
-        if (! $user || ! $this->otpService->verify(
-            $user,
-            $request->validated('otp')
-        )) {
-            return $this->error(
-                'Kode OTP tidak valid atau sudah kedaluwarsa.',
-                422
-            );
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
         }
 
-        $this->otpService->clear($user);
+        if (!$this->otpService->verifyOTP($user, $request->otp)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode OTP tidak valid atau sudah kedaluwarsa'
+            ], 400);
+        }
 
-        $resetToken = Str::random(64);
-
-        Cache::put(
-            'password_reset:' . hash('sha256', $resetToken),
-            $user->id,
-            now()->addMinutes(15)
-        );
-
-        return $this->success(
-            ['reset_token' => $resetToken],
-            'OTP berhasil diverifikasi. Silakan buat kata sandi baru.'
-        );
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP berhasil diverifikasi'
+        ]);
     }
 
-    public function resetPassword(
-        ResetPasswordRequest $request
-    ): JsonResponse {
-        $tokenKey = 'password_reset:' . hash(
-            'sha256',
-            $request->validated('reset_token')
-        );
-
-        $userId = Cache::pull($tokenKey);
-
-        if (! $userId) {
-            return $this->error(
-                'Token reset tidak valid atau sudah kedaluwarsa.',
-                422
-            );
-        }
-
-        $user = User::whereKey($userId)
-            ->where('is_active', true)
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $user = User::where('username', $request->identifier)
+            ->orWhere('no_hp', $request->identifier)
             ->first();
 
-        if (! $user) {
-            return $this->error(
-                'Akun tidak ditemukan atau tidak aktif.',
-                422
-            );
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
         }
 
-        $this->authService->resetPassword(
-            $user,
-            $request->validated('password')
-        );
+        if (!$this->otpService->isOTPVerified($user)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode OTP belum diverifikasi atau sudah kedaluwarsa'
+            ], 403);
+        }
 
-        return $this->success(
-            null,
-            'Kata sandi berhasil diubah. Silakan login kembali.'
-        );
+        $user->update(['password' => Hash::make($request->password)]);
+        $this->otpService->clearOTP($user);
+        $user->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil direset. Silakan login dengan password baru'
+        ]);
     }
 }
