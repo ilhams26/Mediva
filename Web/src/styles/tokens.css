@@ -1,0 +1,173 @@
+:root {
+  /* Warna — [Figma] */
+  --color-bg-page: #eaf5ff;
+  --color-bg-sidebar: #dceeff;
+  --color-surface: #ffffff;
+  --color-chip: #eaf5ff;            /* kotak ikon di StatCard */
+  --color-primary: #1565c0;         /* tombol utama, header tabel, link */
+  --color-accent: #42a5f5;          /* dekorasi & grafik saja. JANGAN untuk teks atau latar teks putih */
+  --color-nav-active: #1565c0;      /* menu sidebar aktif (teks putih) */
+  --color-border-strong: #72bbee;   /* border card/panel dashboard */
+  --color-border-soft: #d6e8fa;     /* border input login */
+  --color-text-strong: #0d2f5e;     /* judul, angka */
+  --color-text-muted: #4a6f9c;      /* label, isi tabel */
+  --color-text-sidebar: #0b3c6f;    /* menu tidak aktif */
+  --color-chart-bar: rgba(66, 165, 245, 0.75);
+  --color-success-bg: #c8f7cd;      /* latar badge "Aman" */
+  --color-success-text: #1b5e20;    /* teks badge "Aman" */
+
+  /* Warna status tambahan — [Usulan] */
+  --color-warning: #ff9800;
+  --color-warning-bg: #fff3e0;
+  --color-warning-text: #e65100;
+  --color-danger: #f44336;
+  --color-danger-bg: #ffebee;
+  --color-danger-text: #b71c1c;
+
+  /* Tipografi — [Figma] */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Border — [Figma, seragam 2px] */
+  --border-width-card: 2px;
+
+  /* Radius — [Figma] */
+  --radius-xs: 5px;   /* tombol & input di halaman dashboard, badge */
+  --radius-sm: 8px;   /* header tabel, batang grafik */
+  --radius-md: 12px;  /* menu aktif, chip ikon, input & tombol login */
+  --radius-lg: 16px;  /* StatCard */
+  --radius-xl: 20px;  /* Panel besar */
+  --radius-2xl: 28px; /* kartu login */
+
+  /* Bayangan — [Figma] */
+  --shadow-stat: 0 6px 16px rgba(15, 51, 102, 0.08);
+  --shadow-panel: 0 8px 20px rgba(15, 51, 102, 0.06);
+  --shadow-login: 0 24px 60px rgba(21, 101, 192, 0.22);
+  --shadow-cta: 0 10px 24px rgba(42, 136, 225, 0.4);
+
+  /* Layout — [Figma] */
+  --sidebar-width: 260px;
+  --page-padding: 24px;
+  --grid-gap: 24px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-page);
+  color: var(--color-text-strong);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tipografi — skala dari design.md */
+.text-page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+}
+
+.text-page-subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-strong);
+}
+
+.text-panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-strong);
+}
+
+.text-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-strong);
+}
+
+.text-stat-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.text-sidebar-item {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-sidebar);
+}
+
+.text-table-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.text-table-body {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.text-button {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.text-axis-label {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.text-badge {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.text-role-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.text-brand {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.text-input {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* Scroll styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b0c4de;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8899b8;
+}

@@ -30,7 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             \Illuminate\Support\Facades\RateLimiter::for('otp', function (Request $request) {
                 // Maks 3 permintaan OTP per menit per IP
-                return \Illuminate\Cache\RateLimiting\Limit::perMinute(3)
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(2)
                     ->by($request->ip())
                     ->response(fn() => response()->json([
                         'status'  => 'error',
@@ -42,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 // Maks 10 request AI per menit per user (atau per IP jika belum login)
                 $key = $request->user()?->id ?? $request->ip();
 
-                return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)
+                return \Illuminate\Cache\RateLimiting\Limit::perMinute(5)
                     ->by($key)
                     ->response(fn() => response()->json([
                         'status'  => 'error',
