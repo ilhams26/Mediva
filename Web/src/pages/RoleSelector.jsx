@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/Button';
-import './RoleSelector.css';
 
 export function RoleSelector() {
   const navigate = useNavigate();
@@ -13,25 +12,27 @@ export function RoleSelector() {
   };
 
   return (
-    <div className="role-selector">
-      <div className="selector-card">
-        <h1 className="text-brand" style={{ marginBottom: '12px' }}>Mediva</h1>
-        <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '32px' }}>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-mediva-page to-mediva-sidebar p-6">
+      <div className="w-full max-w-md rounded-mediva-2xl border border-white bg-white/92 p-10 shadow-mediva-login">
+        <h1 className="mb-3 text-3xl font-bold text-mediva-primary">
+          Mediva
+        </h1>
+        <p className="mb-8 text-[13px] text-mediva-muted">
           Smart Medicine Platform - Pilih Peran
         </p>
         
-        <div className="role-buttons">
+        <div className="flex flex-col gap-3">
           <Button 
-            size="lg" 
+            variant="primary"
             onClick={() => handleLogin('staf')}
-            style={{ width: '100%', marginBottom: '12px' }}
+            className="w-full h-12"
           >
             Login Staf
           </Button>
           <Button 
-            size="lg" 
+            variant="primary"
             onClick={() => handleLogin('admin')}
-            style={{ width: '100%' }}
+            className="w-full h-12"
           >
             Login Admin
           </Button>

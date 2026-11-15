@@ -1,11 +1,10 @@
-import { Icon } from '@iconify/react';
-import './EmptyState.css';
+import { InboxIcon } from '@heroicons/react/24/outline';
 
-export function EmptyState({ message, icon = 'hugeicons:medicine-02' }) {
+export function EmptyState({ message, icon: IconComponent = InboxIcon }) {
   return (
-    <div className="empty-state">
-      <Icon icon={icon} width={48} height={48} style={{ color: 'var(--color-text-muted)', marginBottom: '12px' }} />
-      <p className="text-table-body">{message}</p>
+    <div className="flex flex-col items-center justify-center py-8 text-mediva-muted">
+      <IconComponent className="mb-3 h-12 w-12" aria-hidden="true" />
+      <p className="text-sm">{message}</p>
     </div>
   );
 }

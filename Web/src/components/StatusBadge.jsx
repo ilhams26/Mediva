@@ -1,20 +1,15 @@
-import './StatusBadge.css';
-
 const statusConfig = {
-  'Aman': { bg: 'var(--color-success-bg)', text: 'var(--color-success-text)' },
-  'Menipis': { bg: 'var(--color-warning-bg)', text: 'var(--color-warning-text)' },
-  'Habis': { bg: 'var(--color-danger-bg)', text: 'var(--color-danger-text)' },
-  'Kedaluwarsa': { bg: 'var(--color-danger-bg)', text: 'var(--color-danger-text)' },
+  'Aman': 'bg-mediva-success-bg text-mediva-success-text',
+  'Menipis': 'bg-yellow-100 text-yellow-800',
+  'Habis': 'bg-red-100 text-red-800',
+  'Kedaluwarsa': 'bg-orange-100 text-orange-700',
 };
 
 export function StatusBadge({ status }) {
-  const config = statusConfig[status] || { bg: 'var(--color-success-bg)', text: 'var(--color-success-text)' };
+  const classes = statusConfig[status] || statusConfig['Aman'];
   
   return (
-    <span 
-      className="status-badge text-badge"
-      style={{ backgroundColor: config.bg, color: config.text }}
-    >
+    <span className={`inline-flex items-center rounded-[5px] px-2 py-0.5 text-xs font-semibold ${classes}`}>
       {status}
     </span>
   );

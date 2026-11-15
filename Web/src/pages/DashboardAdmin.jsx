@@ -1,15 +1,20 @@
+import {
+  BanknotesIcon,
+  CubeIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { PageHeader } from '../components/PageHeader';
 import { StatCard } from '../components/StatCard';
 import { Panel } from '../components/Panel';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import './DashboardAdmin.css';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const mockStatsAdmin = [
-  { label: 'Pendapatan Bulan Ini', value: 'Rp 45.000.000', icon: 'mdi:cash' },
-  { label: 'Total Obat Real', value: '3.200', icon: 'mdi:package' },
-  { label: 'Pesanan Selesai', value: '156', icon: 'mdi:check-circle' },
-  { label: 'Obat Menipis', value: '5', icon: 'ant-design:warning-filled' },
+  { label: 'Pendapatan Bulan Ini', value: 'Rp 12.400.000', icon: BanknotesIcon },
+  { label: 'Total Obat Real', value: '1.240', icon: CubeIcon },
+  { label: 'Pesanan Selesai', value: '89', icon: CheckCircleIcon },
+  { label: 'Obat Menipis', value: '8', icon: ExclamationTriangleIcon },
 ];
 
 const mockChartData = [
@@ -23,23 +28,23 @@ const mockChartData = [
 ];
 
 const mockDonutData = [
-  { name: 'Transfer Bank', value: 45, fill: '#1565c0' },
-  { name: 'E-Wallet', value: 30, fill: '#42a5f5' },
-  { name: 'Tunai', value: 25, fill: '#90caf9' },
+  { name: 'Transfer', value: 45, fill: '#1565c0' },
+  { name: 'Cash', value: 35, fill: '#42a5f5' },
+  { name: 'QRIS', value: 20, fill: '#90caf9' },
 ];
 
 export function DashboardAdmin() {
   const { user } = useAuth();
 
   return (
-    <div className="dashboard-admin">
+    <div className="space-y-6">
       <PageHeader 
         title="Dashboard Admin" 
-        subtitle=""
+        subtitle="Pantauan aktivitas hari ini"
         role={user?.role}
       />
       
-      <div className="stats-row">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {mockStatsAdmin.map((stat) => (
           <StatCard 
             key={stat.label}
@@ -50,32 +55,32 @@ export function DashboardAdmin() {
         ))}
       </div>
 
-      <div className="panels-row">
-        <Panel title="Grafik Transaksi" className="panel-chart">
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Panel title="Grafik Transaksi" className="lg:col-span-2">
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={mockChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-soft)" />
-              <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#d6e8fa" />
+              <XAxis dataKey="tanggal" tick={{ fontSize: 10, fill: '#4a6f9c' }} />
+              <YAxis tick={{ fontSize: 10, fill: '#4a6f9c' }} />
               <Tooltip />
               <Bar 
                 dataKey="transaksi" 
-                fill="var(--color-chart-bar)" 
+                fill="#42a5f5" 
                 radius={[8, 8, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
         </Panel>
 
-        <Panel title="Metode Pembayaran" className="panel-donut">
-          <ResponsiveContainer width="100%" height={300}>
+        <Panel title="Metode Pembayaran" className="lg:col-span-1">
+          <ResponsiveContainer width="100%" height={170}>
             <PieChart>
               <Pie
                 data={mockDonutData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={90}
+                innerRadius={55}
+                outerRadius={85}
                 dataKey="value"
                 label={false}
               >
@@ -85,12 +90,12 @@ export function DashboardAdmin() {
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          <div className="donut-legend">
+          <div className="mt-4 space-y-2">
             {mockDonutData.map((item) => (
-              <div key={item.name} className="legend-item">
-                <div className="legend-dot" style={{ backgroundColor: item.fill }}></div>
-                <span className="text-table-body">{item.name}</span>
-                <span className="legend-value">{item.value}%</span>
+              <div key={item.name} className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.fill }}></div>
+                <span className="text-xs text-mediva-muted">{item.name}</span>
+                <span className="ml-auto text-xs font-semibold text-mediva-text">{item.value}%</span>
               </div>
             ))}
           </div>
