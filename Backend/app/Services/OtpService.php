@@ -11,6 +11,22 @@ class OTPService
     private const OTP_LENGTH = 6;
     private const OTP_EXPIRY_MINUTES = 10;
 
+    public function __construct(private FonteService $fonteService) {}
+
+    public function generateAndSendOTP(User $user): array
+    {
+        $otp = $this->generateOTP($user);
+        $expiresAt = $user->otp_expired_at->format('Y-m-d H:i:s');
+        
+        $sent = $this->fonteService->sendOTP($user->no_hp, $otp, $expiresAt);
+
+        return [
+            'sent' => $sent,
+            'expires_at' => $expiresAt,
+            'otp' => config('services.fonnte.enabled') ? null : $otp,
+        ];
+    }
+
     public function generateOTP(User $user): string
     {
         $otp = str_pad((string) random_int(100000, 999999), self::OTP_LENGTH, '0', STR_PAD_LEFT);

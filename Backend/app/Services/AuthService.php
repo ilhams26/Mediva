@@ -9,16 +9,53 @@ use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
+    public function __construct(private OTPService $otpService) {}
+
     public function registerUser(array $data): array
     {
         $user = new User();
         $user->fill(Arr::only($data, ['username', 'no_hp', 'password', 'jenis_kelamin', 'tanggal_lahir']));
         $user->role = 'pembeli';
-        $user->is_active = true;
+        $user->is_active = false;
         $user->save();
 
+        $otpResult = $this->otpService->generateAndSendOTP($user);
+
         return [
-            'user'  => $user,
+            'user' => $user->only(['id', 'username', 'no_hp']),
+            'otp_sent' => $otpResult['sent'],
+            'expires_at' => $otpResult['expires_at'],
+            'otp' => $otpResult['otp'],
+        ];
+    }
+
+    public function verifyOtpAndActivate(string $noHp, string $otp): array
+    {
+        $user = User::where('no_hp', $noHp)->first();
+
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'no_hp' => ['Nomor HP tidak ditemukan']
+            ]);
+        }
+
+        if ($user->is_active) {
+            throw ValidationException::withMessages([
+                'no_hp' => ['Akun sudah aktif. Silakan login']
+            ]);
+        }
+
+        if (!$this->otpService->verifyOTP($user, $otp)) {
+            throw ValidationException::withMessages([
+                'otp' => ['Kode OTP tidak valid atau sudah kedaluwarsa']
+            ]);
+        }
+
+        $user->update(['is_active' => true]);
+        $this->otpService->clearOTP($user);
+
+        return [
+            'user' => $user,
             'token' => $user->createToken('mediva_auth_token')->plainTextToken,
         ];
     }
@@ -37,7 +74,7 @@ class AuthService
 
         if (!$user->is_active) {
             throw ValidationException::withMessages([
-                'login_id' => ['Akun Anda telah dinonaktifkan. Silakan hubungi staf atau admin'],
+                'login_id' => ['Akun belum diverifikasi. Silakan verifikasi OTP terlebih dahulu'],
             ]);
         }
 

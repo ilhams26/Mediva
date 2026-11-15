@@ -1,0 +1,25 @@
+.role-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eaf5ff 0%, #dceeff 100%);
+  padding: 24px;
+}
+
+.selector-card {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 40px;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-login);
+  border: 1px solid white;
+  opacity: 0.92;
+}
+
+.role-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

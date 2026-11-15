@@ -17,7 +17,11 @@ Route::get('/health', [HealthController::class, 'check'])->name('health');
 // Authentication
 Route::post('/register', [AuthController::class, 'register'])
     ->name('register')
-    ->middleware('throttle:7,1');
+    ->middleware('throttle:1,5');
+
+Route::post('/verify-otp-register', [AuthController::class, 'verifyOtpRegister'])
+    ->name('verify-otp-register')
+    ->middleware('throttle:5,10');
 
 Route::post('/login', [AuthController::class, 'login'])
     ->name('login')

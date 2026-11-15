@@ -1,10 +1,10 @@
-
 # MEDIVA - ROOT GITIGNORE
 
 # Personal AI tools and configurations
 .kiro/
 .aider-desk/
 .agents/
+.postman.json
 agent.md
 workflow.md
 design.md
