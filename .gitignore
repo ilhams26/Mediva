@@ -9,6 +9,9 @@ agent.md
 workflow.md
 design.md
 
+# Pengerjaan folder (local working directory - tidak di-push)
+Pengerjaan/
+
 # Node.js dependencies
 **/node_modules/
 
