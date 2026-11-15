@@ -1,16 +1,21 @@
+import {
+  ArchiveBoxIcon,
+  ClipboardDocumentListIcon,
+  CubeIcon,
+  ExclamationTriangleIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { PageHeader } from '../components/PageHeader';
 import { StatCard } from '../components/StatCard';
 import { Panel } from '../components/Panel';
 import { EmptyState } from '../components/EmptyState';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import './DashboardStaf.css';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const mockStats = [
-  { label: 'Jumlah Obat', value: '1.245', icon: 'mdi:pill' },
-  { label: 'Antrean Pesanan', value: '38', icon: 'mdi:file-document' },
-  { label: 'Obat Masuk Hari Ini', value: '12', icon: 'fluent:arrow-enter-16-filled' },
-  { label: 'Obat Menipis', value: '5', icon: 'ant-design:warning-filled' },
+  { label: 'Jumlah Obat', value: '128', icon: ArchiveBoxIcon },
+  { label: 'Antrean Pesanan', value: '5', icon: ClipboardDocumentListIcon },
+  { label: 'Obat Masuk', value: '23', icon: CubeIcon },
+  { label: 'Obat Menipis', value: '8', icon: ExclamationTriangleIcon },
 ];
 
 const mockChartData = [
@@ -23,24 +28,20 @@ const mockChartData = [
   { tanggal: '27 Sep', transaksi: 220 },
 ];
 
-const mockNotifications = [
-  'Obat aspirin stok menipis (sisa 2 dus)',
-  'Batch paracetamol kadaluarsa 27-09-2026',
-  'Pesanan dari Apotek Sejahtera sudah diterima',
-];
+const mockNotifications = [];
 
 export function DashboardStaf() {
   const { user } = useAuth();
 
   return (
-    <div className="dashboard-staf">
+    <div className="space-y-6">
       <PageHeader 
-        title="Dashboard Staf" 
-        subtitle=""
+        title="Dashboard Staff" 
+        subtitle="Pantauan aktivitas hari ini"
         role={user?.role}
       />
       
-      <div className="stats-row">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {mockStats.map((stat) => (
           <StatCard 
             key={stat.label}
@@ -51,28 +52,28 @@ export function DashboardStaf() {
         ))}
       </div>
 
-      <div className="panels-row">
-        <Panel title="Grafik Transaksi" className="panel-chart">
-          <ResponsiveContainer width="100%" height={300}>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Panel title="Grafik Transaksi" className="lg:col-span-2">
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={mockChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-soft)" />
-              <XAxis dataKey="tanggal" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#d6e8fa" />
+              <XAxis dataKey="tanggal" tick={{ fontSize: 10, fill: '#4a6f9c' }} />
+              <YAxis tick={{ fontSize: 10, fill: '#4a6f9c' }} />
               <Tooltip />
               <Bar 
                 dataKey="transaksi" 
-                fill="var(--color-chart-bar)" 
+                fill="#42a5f5" 
                 radius={[8, 8, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
         </Panel>
 
-        <Panel title="Notifikasi" className="panel-notif">
+        <Panel title="Notifikasi" className="lg:col-span-1">
           {mockNotifications.length > 0 ? (
-            <div className="notif-list">
+            <div className="space-y-2">
               {mockNotifications.map((notif, idx) => (
-                <div key={idx} className="notif-item text-table-body">
+                <div key={idx} className="text-xs text-mediva-muted">
                   • {notif}
                 </div>
               ))}
