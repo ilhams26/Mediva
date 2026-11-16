@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { PageHeader } from '../components/PageHeader';
 import { SearchInput } from '../components/SearchInput';

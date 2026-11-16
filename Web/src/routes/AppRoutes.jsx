@@ -1,11 +1,11 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { AppShell } from '../layouts/AppShell';
-import { ProtectedRoute } from './ProtectedRoute';
-import { RoleSelector } from '../pages/RoleSelector';
-import { Dashboard } from '../pages/Dashboard';
-import { KelolaObat } from '../pages/KelolaObat';
-import { KelolaUser } from '../pages/KelolaUser';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { AppShell } from "../layouts/AppShell";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { RoleSelector } from "../pages/RoleSelector";
+import { Dashboard } from "../pages/Dashboard";
+import { KelolaObat } from "../pages/KelolaObat";
+import KelolaPengguna from "../pages/KelolaPengguna";
 
 export default function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -13,7 +13,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<RoleSelector />} />
-      
+
       <Route
         path="/"
         element={
@@ -28,7 +28,7 @@ export default function AppRoutes() {
           )
         }
       />
-      
+
       <Route
         path="/obat"
         element={
@@ -43,14 +43,14 @@ export default function AppRoutes() {
           )
         }
       />
-      
+
       <Route
         path="/pengguna"
         element={
           isAuthenticated ? (
-            <ProtectedRoute allowedRoles={['admin']}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <AppShell>
-                <KelolaUser />
+                <KelolaPengguna />
               </AppShell>
             </ProtectedRoute>
           ) : (

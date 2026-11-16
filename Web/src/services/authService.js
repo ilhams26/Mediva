@@ -1,11 +1,18 @@
-import api from './api';
+import api from "./api";
 
-export const loginBackend = async (email, password) => {
-    try {
-        const response = await api.post('/login', { email, password });
-        return response.data;
-    } catch (error) {
-        console.error("Error login:", error);
-        throw error;
-    }
+export const login = async (username, password) => {
+  const response = await api.post("/login", {
+    login_id: username,
+    password,
+  });
+  return response.data;
+};
+
+export const logout = async () => {
+  await api.post("/logout");
+};
+
+export const getCurrentUser = async () => {
+  const response = await api.get("/user");
+  return response.data;
 };
