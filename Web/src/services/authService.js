@@ -8,8 +8,10 @@ export const login = async (username, password) => {
   return response.data;
 };
 
-export const logout = async () => {
-  await api.post("/logout");
+export const logout = async (token) => {
+  await api.post("/logout", null, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
 };
 
 export const getCurrentUser = async () => {

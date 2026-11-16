@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import logo from "../assets/logo.png";
 
 export function RoleSelector() {
   const navigate = useNavigate();
@@ -18,10 +19,16 @@ export function RoleSelector() {
       await login(username, password);
       navigate("/");
     } catch (err) {
-      const msg =
-        err?.response?.data?.errors?.login_id?.[0] ??
-        err?.response?.data?.message ??
-        "Login gagal. Periksa username dan password.";
+      let msg;
+      if (!err?.response) {
+        msg =
+          "Tidak dapat terhubung ke server backend. Pastikan `php artisan serve` berjalan di http://127.0.0.1:8000 dan alamat Vite (localhost/127.0.0.1) cocok dengan konfigurasi CORS.";
+      } else {
+        msg =
+          err.response.data?.errors?.login_id?.[0] ??
+          err.response.data?.message ??
+          "Login gagal. Periksa username dan password.";
+      }
       setError(msg);
     } finally {
       setLoading(false);
@@ -31,9 +38,11 @@ export function RoleSelector() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-mediva-page to-mediva-sidebar p-6">
       <div className="w-full max-w-md rounded-mediva-2xl border border-white bg-white/92 p-10 shadow-mediva-login">
-        <h1 className="mb-3 text-3xl font-bold text-mediva-primary">Mediva</h1>
-        <p className="mb-8 text-[13px] text-mediva-muted">
-          Smart Medicine Platform — Login Staf / Admin
+        <div className="mb-6 flex justify-center">
+          <img src={logo} alt="Mediva" className="h-16 w-auto" />
+        </div>
+        <p className="mb-8 text-center text-[13px] text-mediva-muted">
+          Login Staf / Admin
         </p>
 
         {error && (

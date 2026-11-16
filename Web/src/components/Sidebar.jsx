@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { NAV } from '../config/nav';
+import logo from '../assets/logo.png';
 
 export function Sidebar() {
   const { user, logout } = useAuth();
@@ -11,9 +12,7 @@ export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[260px] flex-col bg-mediva-sidebar lg:flex">
       <div className="flex h-24 items-center justify-center border-b border-mediva-border/20">
-        <div className="text-2xl font-bold text-mediva-primary">
-          🏥 Mediva
-        </div>
+        <img src={logo} alt="Mediva" className="h-14 w-auto" />
       </div>
       
       <nav className="flex-1 space-y-1 p-4">

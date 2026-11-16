@@ -2,8 +2,9 @@
 import { Bars3Icon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { Link, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { NAV } from '../config/nav';
+import logo from '../assets/logo.png';
 
 export function AppShell({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -18,7 +19,9 @@ export function AppShell({ children }) {
         <button onClick={() => setMobileMenuOpen(true)} className="text-mediva-text" aria-label="Open menu">
           <Bars3Icon className="h-6 w-6" />
         </button>
-        <div className="text-lg font-bold text-mediva-primary">Mediva</div>
+        <div className="text-lg font-bold text-mediva-primary">
+          <img src={logo} alt="Mediva" className="h-8 w-auto" />
+        </div>
         <UserCircleIcon className="h-8 w-8 text-mediva-muted" aria-hidden="true" />
       </header>
       {mobileMenuOpen && (
@@ -26,7 +29,9 @@ export function AppShell({ children }) {
           <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setMobileMenuOpen(false)} aria-hidden="true" />
           <aside className="fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col bg-mediva-sidebar lg:hidden">
             <div className="flex h-16 items-center justify-between px-4">
-              <div className="text-lg font-bold text-mediva-primary">Mediva</div>
+              <div className="text-lg font-bold text-mediva-primary">
+                <img src={logo} alt="Mediva" className="h-8 w-auto" />
+              </div>
               <button onClick={() => setMobileMenuOpen(false)} className="text-mediva-text" aria-label="Close menu">
                 <XMarkIcon className="h-6 w-6" />
               </button>

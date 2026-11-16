@@ -97,6 +97,11 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public,extensions',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'options' => extension_loaded('pdo_pgsql') ? [
+                // Reuse koneksi antar request agar tidak bayar DNS + TLS handshake
+                // (DNS ke Supabase pooler bisa >10 detik di jaringan lokal).
+                PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', true),
+            ] : [],
         ],
 
         'sqlsrv' => [

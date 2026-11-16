@@ -6,7 +6,8 @@ const api = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 8000,
+  // Koneksi ke Supabase bisa lambat (DNS/network), beri ruang lebih dari 8 detik
+  timeout: 30000,
   withCredentials: true,
 });
 
@@ -24,7 +25,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       sessionStorage.removeItem("auth_token");
       sessionStorage.removeItem("auth_user");
-      window.location.href = "/login";
     }
     return Promise.reject(error);
   }

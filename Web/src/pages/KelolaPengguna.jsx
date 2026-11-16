@@ -24,7 +24,6 @@ export default function KelolaPengguna() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [form, setForm] = useState(DEFAULT_FORM);
@@ -34,11 +33,40 @@ export default function KelolaPengguna() {
   const [deletingUserId, setDeletingUserId] = useState(null);
   const [error, setError] = useState('');
 
-  const fetchUsers = useCallback(async () => {
+  useEffect(() => {
+    let ignore = false;
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const result = await getUsers(search);
+        if (!ignore) {
+          setUsers(result.data);
+        }
+      } catch (err) {
+        console.error('Gagal memuat pengguna:', err);
+        if (!ignore) {
+          setError('Gagal memuat data pengguna. Pastikan server berjalan.');
+          setUsers([]);
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      ignore = true;
+      clearTimeout(timer);
+    };
+  }, [search]);
+
+  const refreshUsers = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      const result = await getUsers(debouncedSearch);
+      const result = await getUsers(search);
       setUsers(result.data);
     } catch (err) {
       console.error('Gagal memuat pengguna:', err);
@@ -47,18 +75,7 @@ export default function KelolaPengguna() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 300);
-    return () => clearTimeout(timer);
   }, [search]);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
 
   const openCreateModal = () => {
     setEditingUser(null);
@@ -130,7 +147,7 @@ export default function KelolaPengguna() {
         await createUser(payload);
       }
       closeModal();
-      fetchUsers();
+      refreshUsers();
     } catch (err) {
       const msg =
         err?.response?.data?.message ??
@@ -153,7 +170,7 @@ export default function KelolaPengguna() {
       await deleteUser(deletingUserId);
       setShowDeleteConfirm(false);
       setDeletingUserId(null);
-      fetchUsers();
+      refreshUsers();
     } catch (err) {
       console.error('Gagal menghapus pengguna:', err);
       setShowDeleteConfirm(false);
