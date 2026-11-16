@@ -1,353 +1,660 @@
-﻿# PROJECT_ROADMAP.md — Mediva Smart Medicine Platform
+﻿# PROJECT ROADMAP - Mediva Smart Medicine Platform
+## Complete 15-Week Implementation Plan (Fase 1-8)
 
-**Document Version:** 1.0  
-**Last Updated:** 2026-11-16  
-**Status:** Active Development — Phase 1-2 Complete, Phase 3-8 In Progress  
-**Completion:** 35% (Tahap 1-2 / Tahap 1-8)
-
----
-
-## Executive Summary
-
-Mediva is a smart pharmacy management platform combining mobile (Flutter), web admin/staf (React), and REST API (Laravel 12) with AI-powered assistant and recommendation engine.
-
-**Current Status:** Frontend design system and layout infrastructure complete. 4 demo pages ready for presentation. Backend foundation API partially implemented.
-
-**Overall Progress:**
-- ✅ **Tahap 1-2 (Design System + Layout):** 100%
-- ✅ **Tahap 3 (UI Components):** 100% — 8 reusable components
-- ✅ **Tahap 4 (Demo Pages):** 100% — 4/11 pages complete
-- 🔄 **Tahap 5-8:** 0% — In planning phase
-- ⏳ **Tahap 9-12:** 0% — Future phases
-
-**Target Completion:** 16 weeks (6 sprints × ~60-70 hrs/week)
+**Project:** Mediva Smart Medicine Platform  
+**Duration:** 15 weeks (Fase 1-8)  
+**Team:** 3 people (Ilham 35%, Aisiti 45%, Tsabita 20%)  
+**Status:** Fase 1-2 COMPLETE ✅ | Fase 3-8 IN PROGRESS  
+**Start Date:** Week 6 (Monday next)
 
 ---
 
-## What's Done — Tahap 1-4
+## FASE 1: AUTH & FOUNDATIONAL SETUP ✅ COMPLETE
+**Duration:** 2 weeks | **Status:** Done  
+**Deliverables:** Authentication, OTP system, design system, 4 demo pages
 
-### Frontend (Web React) ✅
+### Completed Tasks:
+- [x] User registration with OTP verification
+- [x] Login authentication (JWT tokens)
+- [x] Forgot password & reset flow
+- [x] Role-based access control (Admin, Doctor, Customer)
+- [x] Design system (components, typography, colors)
+- [x] Dashboard, Profile, Settings, Product List pages
+- [x] API endpoints (Auth, User management)
 
-**Tahap 1: Design System & Folder Structure**
-- tokens.css with complete design tokens (colors, typography, spacing, shadows, radii)
-- global.css with base styles
-- Folder structure: components, pages, layouts, services, hooks, routes, utils
-- Dependencies: @iconify/react, recharts, axios, react-router-dom
-
-**Tahap 2: Layout Infrastructure**
-- Sidebar.jsx (260px fixed, dynamic menu per role)
-- PageHeader.jsx (title, date, role badge, avatar)
-- AppShell.jsx (grid layout wrapper)
-- AuthContext.jsx (fake auth for demo)
-- ProtectedRoute.jsx (role-based access)
-- Routing with PrivateRoute guards
-
-**Tahap 3: UI Components (8 reusable components)**
-1. Button.jsx — primary, secondary, danger
-2. StatCard.jsx — 260×170px stat display
-3. SearchInput.jsx — 197px search box
-4. Panel.jsx — white card container
-5. DataTable.jsx — 67px rows, 5-4 columns
-6. StatusBadge.jsx — color-coded status
-7. EmptyState.jsx — empty placeholder
-8. Charts — BarChart & DonutChart (Recharts)
-
-**Tahap 4: 4 Demo Pages (Screenshot-Ready)**
-1. **DashboardStaf** — 4 stat cards + bar chart + notification panel
-2. **KelolaObat** — Search + 5-column table with edit/delete (Staf)
-3. **DashboardAdmin** — 4 different stat cards + bar + donut chart
-4. **KelolaUser** — Search + 4-column table (Admin)
-
-**Deliverables:** 4 screenshot-ready pages, all styling from tokens.css, mock data embedded, role-based routing
+**Owner:** Ilham (Lead) + Aisiti (OTP implementation) + Tsabita (Design support)
 
 ---
 
-### Backend (Laravel 12) 🔄
+## FASE 2: INITIAL FEATURE SETUP ✅ COMPLETE
+**Duration:** 2 weeks | **Status:** Done  
+**Deliverables:** Data models, basic catalog, notification foundation
 
-**Current Status:** 13 migrations applied, models created, basic structure
+### Completed Tasks:
+- [x] Database schema (Users, Products, Orders, Prescriptions)
+- [x] Product catalog basic structure
+- [x] Notification system foundation
+- [x] Image upload integration
+- [x] Error handling & logging
+- [x] Unit tests for core services
 
-**Implemented:**
-- 13 database migrations for Supabase PostgreSQL
-- Core models: User, Obat, Order, Resep, etc.
-- Base AuthService, OtpService, UserService (partial)
-- Sanctum API Token configured
-- Basic controller structure
-
-**NOT Implemented:** All API endpoints, inventory logic, ordering, payments, AI, recommendations
-
----
-
-## What's Remaining — Tahap 5-12
-
-### Sprint 1: Weeks 1-2 — Frontend Pages (3) + Backend Foundation
-
-**Tahap 5: Remaining Frontend Pages (3 pages)**
-- Kasir (/kasir) — Grid catalog + shopping cart panel
-- KelolaStok (/stok) — Stock batch management
-- Pesanan (/pesanan) — Order list + prescription validation
-
-**Hours:** 30 (SITI)  
-**Deliverables:** 3 screenshot-ready pages, integration-ready for backend
-
-**Tahap 6: Backend API Foundation**
-- Cleanup REST API structure
-- Standardized JSON response format
-- CORS whitelist (allow React origin only)
-- Rate limiting (login, OTP, AI)
-- Error handling middleware
-- Health check endpoint
-
-**Hours:** 20 (ILHAM)  
-**Success:** /api/health responds, CORS secure, error format consistent
+**Owner:** Ilham (Lead) + Aisiti (Database design) + Tsabita (Testing support)
 
 ---
 
-### Sprint 2: Weeks 3-4 — Authentication & Catalog APIs
+## FASE 3: STOCK & INVENTORY MANAGEMENT
+**Duration:** 3 weeks | **Status:** TODO  
+**Deliverables:** Stock tracking, inventory API, stock alerts
 
-**Tahap 7: Authentication API (40 hours, ILHAM)**
-- POST /api/login → token + user data
-- POST /api/register, logout
-- POST /api/otp/{request,verify}
-- POST /api/password/{change,forgot,reset}
-- GET /api/user (current authenticated user)
-- OTP: 5-min expiry, rate limited, hashed
-- Sanctum Personal Access Token (Bearer)
-- Tests: login, logout, OTP, throttling
+### Backend Tasks (Aisiti Lead - 60%):
+1. **Stock API Endpoints**
+   - [ ] GET /api/stock - list all stock with filters (kategori, ketersediaan)
+   - [ ] GET /api/stock/:id - single stock detail
+   - [ ] POST /api/stock - create stock (admin only)
+   - [ ] PUT /api/stock/:id - update stock quantity/info
+   - [ ] DELETE /api/stock/:id - remove stock (soft delete)
+   - [ ] POST /api/stock/:id/adjust - manual stock adjustment with reason log
 
-**Success:** Tokens created/validated, invalid rejected (401), cross-role denied (403), inactive users blocked
+2. **Stock Model & Database**
+   - [ ] Create Stok migration with fields: obat_id, quantity, lokasi, reorder_level, last_checked
+   - [ ] Create PergerakanStok (Stock Movement) model for audit trail
+   - [ ] Add stock-related indexes for query performance
+   - [ ] Create seeders with realistic stock data
 
-**Tahap 8: Catalog API (30 hours, ILHAM)**
-- GET /api/categories, POST/PUT/DELETE categories
-- GET /api/products (paginated, search, filter)
-- POST/PUT/DELETE products (staf/admin)
-- POST /api/products/{id}/image (upload)
-- Inactive products hidden from catalog
-- Stock calculated from batches (no duplication)
-- File upload validation
+3. **Stock Business Logic**
+   - [ ] Implement low-stock alert trigger (when qty <= reorder_level)
+   - [ ] Implement stock reservation system (for orders in process)
+   - [ ] Implement stock history/movement tracking
+   - [ ] Add stock validation before order confirmation
 
-**Success:** Searchable catalog, role-based CRUD, uploads validated
+4. **Stock Notifications**
+   - [ ] Create notification service for low stock alerts
+   - [ ] Create notification service for restock reminders
+   - [ ] Email integration for admin alerts
 
----
+### Frontend Tasks (Aisiti Lead - 40%):
+1. **Stock Dashboard Page**
+   - [ ] Create /pages/admin/stock page (admin only)
+   - [ ] Display stock list with: Obat name, Quantity, Reorder Level, Status (OK/LOW/OUT)
+   - [ ] Add filters: by kategori, by status (OK/LOW), by lokasi
+   - [ ] Add search by obat name/kode
+   - [ ] Real-time stock update via WebSocket or polling
 
-### Sprint 3: Weeks 5-6 — Inventory, Orders & Prescription
+2. **Stock Management Components**
+   - [ ] StockCard component (display single stock item)
+   - [ ] StockForm component (create/edit stock)
+   - [ ] StockAdjustmentForm component (adjust quantity with reason)
+   - [ ] LowStockAlert component (warning banner for low stock)
 
-**Tahap 9: Inventory & Stock Management (40 hours, ILHAM)**
-- InventoryService with FEFO (First Expired, First Out)
-- POST /api/batches (receive stock)
-- GET /api/batches, PUT updates
-- GET /api/stock/warnings (low stock, expiry alerts)
-- POST /api/stock/adjust (manual adjustments)
-- Expired batches excluded from sales
-- Transaction safety: lockForUpdate() prevents race conditions
-- Stock never negative
+3. **Stock Analytics**
+   - [ ] Display total inventory value
+   - [ ] Show movement history (last 30 days)
+   - [ ] Display alert summary (X items low stock)
 
-**Success:** FEFO ordering correct, expired excluded, stock never negative, concurrent ops safe
+### Support Tasks (Tsabita - 20%):
+- [ ] Write unit tests for Stock model & services
+- [ ] Create stock test data & fixtures
+- [ ] Document stock API endpoints (Postman collection)
+- [ ] Create deployment checklist for Fase 3
 
-**Tahap 10: Ordering & Checkout (45 hours, ILHAM)**
-- POST /api/cart/{add,remove}, GET /api/cart
-- POST /api/orders (checkout) → create orders + order_items, deduct stock (FEFO)
-- GET /api/orders, GET /api/orders/{id}
-- PUT /api/orders/{id}/status, POST cancel
-- Price calculated server-side (never trust client)
-- Status: pending → ready → completed
-- Idempotency: repeated requests return same order
-- Ownership check: users see only own orders
-
-**Success:** Stock consistent web/mobile, server pricing accurate, cancellation refunds once, illegal transitions blocked
-
-**Tahap 11: Prescription Management (25 hours, SITI)**
-- POST /api/prescriptions (upload)
-- GET /api/prescriptions, GET/{id}
-- PUT /api/prescriptions/{id}/validate (staf/admin)
-- DELETE /api/prescriptions/{id}
-- Private storage (not public)
-- File validation & virus scan (optional)
-- Status: pending → approved/rejected
-- tracked: validated_by, validated_at, reason
-- Link to orders, enforce Rx rules at checkout
-- Notifications on validation
-
-**Success:** Files not public, Rx enforcement at checkout, status transitions correct
+**Owner:** Aisiti (60%) | Ilham supervision (20%) | Tsabita support (20%)  
+**Dependencies:** Auth ✅, Database models ✅
 
 ---
 
-### Sprint 4: Weeks 7-8 — Payment, Notifications, Dashboard & AI
+## FASE 4: PRODUCT CATALOG & RECOMMENDATIONS
+**Duration:** 3 weeks | **Status:** TODO  
+**Deliverables:** Complete catalog, search, filters, AI recommendations
 
-**Tahap 12: Payment (Midtrans Sandbox) (30 hours, ILHAM)**
-- POST /api/payments/snap-token → generate token
-- POST /api/payments/callback → webhook handler
-- GET /api/payments/{orderId}
-- Signature verify: SHA512(order_id + status_code + gross_amount + ServerKey)
-- Amount verification: callback == order total
-- Idempotency: repeated callbacks safe
-- Status: pending → settlement/failure
-- Server Key in .env only
+### Backend Tasks (Aisiti Lead - 50%):
+1. **Catalog API Endpoints**
+   - [ ] GET /api/products - list with pagination, filtering, sorting
+   - [ ] GET /api/products/:id - product detail with stock status
+   - [ ] GET /api/products/search - full-text search (name, deskripsi, kode)
+   - [ ] GET /api/products/:id/related - related products
+   - [ ] POST /api/products - create product (admin only)
+   - [ ] PUT /api/products/:id - update product info
+   - [ ] DELETE /api/products/:id - remove product (soft delete)
+   - [ ] GET /api/categories - list all kategori with counts
 
-**Success:** Invalid signatures rejected, amount verified, callbacks idempotent, no secret leaks
+2. **Product Embedding & Search**
+   - [ ] Implement vector embedding for products (using Fonté AI)
+   - [ ] Create ObatEmbedding model & migration
+   - [ ] Implement semantic search (similarity search by embedding)
+   - [ ] Add full-text search (MySQL FULLTEXT or Meilisearch)
+   - [ ] Cache frequently searched terms
 
-**Tahap 13: Notifications, Dashboard & Reports (35 hours, SITI)**
-- GET /api/notifications, PUT/{id}/read, read-all
-- GET /api/notifications/unread-count
-- GET /api/dashboard/staf → order count, stock metrics, transaction graphs
-- GET /api/dashboard/admin
-- GET /api/reports/{transactions,stock,revenue} → PDF/Excel export
-- Date filtering & role-based access
+3. **Product Filtering & Sorting**
+   - [ ] Filter by kategori, harga, ketersediaan, rating
+   - [ ] Sort by: relevance, newest, harga (asc/desc), rating, terlaris
+   - [ ] Price range filter (min/max)
+   - [ ] In-stock/out-of-stock toggle
 
-**Success:** Metrics match transaction data, filters work, exports download, <500ms queries
+4. **AI Recommendations**
+   - [ ] Integrate with Fonté AI for product recommendations
+   - [ ] Implement "users who bought X also viewed Y" logic
+   - [ ] Implement "trending products" (based on views/purchases)
+   - [ ] Cache recommendations (update daily)
 
-**Tahap 14: AI Assistant (45 hours, ILHAM)**
-- POST /api/ai/chat → question + context
-- POST /api/ai/products/embed → generate embeddings
-- GET /api/ai/search-context → retrieve for AI
-- Retrieve relevant products → build context → Gemini → answer
-- Constraints: No diagnosis, no Rx, no treatment, fallback to "consult professional"
-- Rate limit: 10/user/day
-- Logging without sensitive data
-- Prompt injection protection
+### Frontend Tasks (Aisiti - 50%):
+1. **Product Catalog Pages**
+   - [ ] Create /pages/catalog page (list all products)
+   - [ ] Create /pages/products/:id page (product detail)
+   - [ ] Create /pages/search page (search results)
+   - [ ] Create /pages/category/:id page (products by category)
 
-**Success:** Relevant answers with catalog data, off-topic redirected, API failures handled, rate limited, no data leaks
+2. **Catalog Components**
+   - [ ] ProductCard component (grid/list view)
+   - [ ] ProductDetail component (image gallery, description, reviews, stock status)
+   - [ ] FilterSidebar component (kategori, harga, ketersediaan)
+   - [ ] SortDropdown component
+   - [ ] SearchBar component with autocomplete
+   - [ ] RecommendationCarousel component (AI-driven suggestions)
+   - [ ] RatingStars component (display product ratings)
 
----
+3. **Search & Filter UX**
+   - [ ] Real-time filter updates (URL query params)
+   - [ ] Search suggestions/autocomplete
+   - [ ] Faceted search (show filter counts)
+   - [ ] "Clear filters" button
+   - [ ] Save favorite products (wishlist)
 
-### Sprint 5: Weeks 9-10 — Recommendation, Security & Integration
+4. **Performance**
+   - [ ] Lazy load product images
+   - [ ] Pagination or infinite scroll
+   - [ ] Debounce search input (500ms)
+   - [ ] Cache catalog data (5 min TTL)
 
-**Tahap 15: Recommendation Engine (40 hours, ILHAM)**
-- POST /api/recommendations/products/{id}
-- GET /api/recommendations/personalized
-- Hybrid: Popularity + Co-purchase + Semantic (pgvector)
-- Track interactions: view, add_to_cart, purchase
-- Rank & filter: remove inactive, out-of-stock
-- Return top 10
+### Support Tasks (Tsabita - 20%):
+- [ ] Create product seeder with 200+ realistic medicines
+- [ ] Write tests for catalog service & search logic
+- [ ] Create Postman collection for catalog APIs
+- [ ] Performance testing (load test catalog endpoints)
+- [ ] Document product API endpoints
 
-**Success:** Recommendations relevant, no inactive/OOS items, personalized, <1s query
-
-**Tahap 16: Security Hardening & Testing (40 hours, ILHAM)**
-- Bearer Token audit (validation, revocation, expiry)
-- Authorization audit (roles, ownership)
-- Input validation (SQL injection, XSS prevention)
-- File upload security
-- Secret audit (.env, logs, responses)
-- Rate limiting verification
-- Tests: >80% coverage
-- OWASP ZAP scanning (basic)
-- API documentation (OpenAPI/Postman)
-
-**Success:** All tests passing, no critical issues, no secrets in Git, CORS secure, docs complete
-
-**Tahap 17: Frontend-Backend Integration & Deployment (50 hours, ILHAM)**
-- Replace mock auth with real tokens
-- Integrate all 11 frontend pages with APIs
-- Error handling & loading states
-- Token refresh/expiry
-- Deploy to VPS: Nginx, HTTPS, SSL
-- CI/CD (GitHub Actions)
-- Production .env secured
-- Monitoring & error logging
-
-**Success:** React & Flutter login works, HTTPS active, migrations safe, CI/CD automated, monitoring live
+**Owner:** Aisiti (100%) with Ilham supervision | Tsabita support  
+**Dependencies:** Stock API ✅, Auth ✅
 
 ---
 
-### Sprint 6: Weeks 11-12 — Mobile, Remaining Pages & Polish
+## FASE 5: SHOPPING CART & CHECKOUT
+**Duration:** 2 weeks | **Status:** TODO  
+**Deliverables:** Cart system, order creation, checkout flow
 
-**Tahap 18: Mobile Setup & Remaining Pages (80 hours)**
-- Flutter: setup, Sanctum Bearer Token, login page
-- Product catalog, cart, checkout
-- Order tracking, prescription upload
-- Frontend: Login page (/login), Laporan (/laporan), Pengaturan (/pengaturan)
-- 3D robot optional
+### Backend Tasks (Aisiti Lead - 60%):
+1. **Cart API (Server-side Cart)**
+   - [ ] POST /api/cart - add item to cart
+   - [ ] GET /api/cart - get current user's cart
+   - [ ] PUT /api/cart/:itemId - update quantity
+   - [ ] DELETE /api/cart/:itemId - remove item from cart
+   - [ ] DELETE /api/cart - clear entire cart
+   - [ ] POST /api/cart/checkout - create order from cart
 
-**Hours:** 60 frontend (SITI) + 20 mobile setup (ILHAM)
+2. **Order API**
+   - [ ] POST /api/orders - create order (from cart or direct)
+   - [ ] GET /api/orders - list user's orders with pagination
+   - [ ] GET /api/orders/:id - order detail (with items, status, timeline)
+   - [ ] PUT /api/orders/:id/status - update order status (admin only)
+   - [ ] GET /api/orders/:id/invoice - generate/download invoice
 
-**Tahap 19: Polish, Testing & Handoff (60 hours)**
-- Visual polish: hover, loading, error states
-- Edge case testing: network failures, timeouts
-- Performance: lazy loading, bundle optimization
-- Accessibility: WCAG AA baseline
-- Browser testing: Chrome, Firefox, Safari, Edge
-- Mobile responsiveness
-- UAT & user documentation
-- Training & demo
+3. **Order Model & Database**
+   - [ ] Create Order migration with fields: user_id, total_harga, status, created_at, updated_at
+   - [ ] Create OrderItem migration with fields: order_id, obat_id, quantity, harga_satuan
+   - [ ] Add order status tracking (pending, confirmed, processing, shipped, delivered, cancelled)
+   - [ ] Add order timestamps (order_date, ship_date, delivery_date)
 
-**Hours:** Split SITI + ILHAM
+4. **Order Business Logic**
+   - [ ] Stock validation before order confirmation (prevent overselling)
+   - [ ] Calculate order total (item harga × qty + shipping)
+   - [ ] Generate order number (unique, sequential or UUID)
+   - [ ] Create order audit trail (who approved, when status changed, why)
+   - [ ] Implement order cancellation logic (refund stock if not shipped)
 
----
+5. **Cart Validation**
+   - [ ] Validate stock availability before checkout
+   - [ ] Validate item prices (prevent price tampering from frontend)
+   - [ ] Check for expired items in cart (if applicable)
+   - [ ] Validate user permissions (e.g., restricted products for non-doctors)
 
-## Sprint Summary Table
+### Frontend Tasks (Aisiti - 40%):
+1. **Cart Pages**
+   - [ ] Create /pages/cart page (list items in cart)
+   - [ ] Create /pages/checkout page (review order, enter shipping info, select payment method)
 
-| Sprint | Weeks | Frontend Hrs | Backend Hrs | Deliverables |
-|--------|-------|--------------|------------|--------------|
-| 0 (Done) | 1-2 | 235 | 50 | Design system, 4 pages, auth partial |
-| 1 | 1-2 | 30 | 20 | 3 pages + API foundation |
-| 2 | 3-4 | 0 | 70 | Auth + Catalog APIs |
-| 3 | 5-6 | 25 | 110 | Inventory, Orders, Prescription |
-| 4 | 7-8 | 35 | 110 | Payment, AI, Dashboard |
-| 5 | 9-10 | 0 | 130 | Recommendation, Security, Deploy |
-| 6 | 11-12 | 140 | 0 | Mobile, remaining pages, polish |
-| **TOTAL** | 12 weeks | **425 hrs** | **500 hrs** | Production-ready system |
+2. **Cart Components**
+   - [ ] CartItem component (product info, quantity selector, remove button, item total)
+   - [ ] CartSummary component (subtotal, shipping, taxes, total)
+   - [ ] QuantitySelector component (+-buttons, inline input)
+   - [ ] ShippingForm component (address, city, postal code)
+   - [ ] PaymentMethodSelector component (Midtrans, bank transfer, etc.)
+   - [ ] OrderConfirmation component (order number, email confirmation)
 
----
+3. **Cart UX**
+   - [ ] Add to cart button on product page (with quantity selector)
+   - [ ] Cart count badge in header (number of items)
+   - [ ] Cart persistence (save to localStorage, sync with backend)
+   - [ ] "Continue shopping" link after add-to-cart
+   - [ ] "Apply coupon" input field (prepare for Fase 6)
+   - [ ] "Estimate shipping" feature
 
-## Critical Path
+4. **Checkout Flow**
+   - [ ] Multi-step checkout (review items → shipping → payment → confirmation)
+   - [ ] Show order summary on each step
+   - [ ] Real-time total calculation (with shipping & taxes)
+   - [ ] Error messages for validation failures
+   - [ ] Success page with order number & tracking link
 
-`
-Tahap 1-2 ──→ Tahap 4 ──┐
-                         ├──→ Tahap 17 (Integration) ──→ Tahap 18 (Mobile) ──→ Tahap 19 (Polish)
-Tahap 3 ─────→ Tahap 4 ─┘
-                         Backend Path:
-Tahap 6 ──→ Tahap 7 (Auth) ──→ Tahap 10 (Orders) ──┐
-                │                                  ├──→ Tahap 13 (Dashboard)
-Tahap 8 (Catalog) ──→ Tahap 9 (Inventory) ────────┘
-                │
-             Tahap 11 (Prescription)
-                │
-             Tahap 12 (Payment)
-                │
-         Tahap 14 (AI) ──→ Tahap 15 (Recommendation)
-                │
-             Tahap 16 (Security)
-`
+### Support Tasks (Tsabita - 20%):
+- [ ] Write tests for Order model & cart service
+- [ ] Create test data for cart/order scenarios
+- [ ] Document cart & order APIs
+- [ ] Test checkout flow end-to-end (manual testing checklist)
 
-**Blocking:**
-- Frontend Tahap 1-2 must finish before Tahap 4
-- Backend Tahap 6 blocks all subsequent backend
-- Tahap 7 (Auth) blocks Tahap 10, 13, 17
-- Tahap 10 (Orders) blocks Tahap 12, 13
-- Tahap 17 (Integration) blocks Tahap 18 (Mobile)
-
----
-
-## Risk & Mitigation
-
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| FEFO logic complexity | Delays ordering, stock errors | Start early, pair programming, test grid |
-| Database schema changes | Rework migrations, data loss | Lock schema after Tahap 6, versioning strict |
-| Midtrans integration issues | Blocks payment, rework required | Test Sandbox early, follow docs strictly |
-| AI API rate limits | Chat unavailable, fallback needed | Rate limit early, queue system for async |
-| Frontend responsiveness issues | Quality suffers, timeline slips | Responsive components in Tahap 3 early |
-| Security audit finds critical bugs | Delay deployment, rework | Security-first practices, early OWASP scan |
-| Team unavailability | Task slippage | Cross-train, pair programming, docs |
-| Scope creep (new features) | Timeline extends | Strict PRD adherence, change control |
+**Owner:** Aisiti (100%) with Ilham supervision | Tsabita support  
+**Dependencies:** Stock API ✅, Product Catalog ✅, Auth ✅
 
 ---
 
-## Success Criteria (Project Exit)
+## FASE 6: PAYMENTS & PRESCRIPTIONS
+**Duration:** 3 weeks | **Status:** TODO  
+**Deliverables:** Payment processing, prescription management, doctor workflows
 
-✅ **Backend:** 40+ endpoints, Sanctum auth, FEFO tested, payment integrated, AI responding, security audit passed, API documented
+### Backend Tasks (Aisiti Lead - 50%):
+1. **Payment Gateway Integration (Midtrans)**
+   - [ ] Setup Midtrans account & API keys in env
+   - [ ] Implement payment API endpoint: POST /api/orders/:id/pay
+   - [ ] Create payment webhook handler for Midtrans callbacks
+   - [ ] Implement payment verification (GET /api/orders/:id/payment-status)
+   - [ ] Store payment transaction records in database
+   - [ ] Handle payment success/failure/pending states
+   - [ ] Implement payment retry logic (for failed transactions)
 
-✅ **Frontend:** 11 pages complete, responsive design, all APIs integrated, token management, no errors, WCAG AA baseline, Lighthouse >80
+2. **Payment Processing Logic**
+   - [ ] Generate Midtrans transaction token (snap token)
+   - [ ] Verify payment signature from Midtrans webhook
+   - [ ] Update order status based on payment status
+   - [ ] Send payment confirmation email
+   - [ ] Implement refund handling (if order cancelled)
+   - [ ] Add payment audit trail (transaction ID, timestamp, amount)
 
-✅ **Mobile:** Flutter app, Sanctum auth, catalog/cart/checkout working, order tracking, prescription upload
+3. **Prescription API**
+   - [ ] GET /api/prescriptions - list user's prescriptions
+   - [ ] GET /api/prescriptions/:id - prescription detail
+   - [ ] POST /api/prescriptions - create prescription (doctor only)
+   - [ ] PUT /api/prescriptions/:id - update prescription (doctor only)
+   - [ ] DELETE /api/prescriptions/:id - remove prescription (soft delete)
+   - [ ] POST /api/prescriptions/:id/validate - validate prescription (pharmacist)
+   - [ ] GET /api/prescriptions/:id/items - get prescribed medicines
 
-✅ **Deployment:** VPS with Nginx/HTTPS, CI/CD working, .env secured, monitoring active, backups ready
+4. **Prescription Model & Validation**
+   - [ ] Create Resep migration with: user_id, doctor_id, date_created, expiry_date, status, notes
+   - [ ] Create ResepItem migration with: resep_id, obat_id, quantity, dosage, frequency, duration
+   - [ ] Implement prescription validation rules (dosage limits, contraindications)
+   - [ ] Implement prescription expiry logic (mark as expired after date)
+   - [ ] Create prescription number/reference system
 
-✅ **Documentation:** API contract (OpenAPI), deployment runbook, user guide, developer docs, training materials
+5. **Doctor Workflow**
+   - [ ] Doctor can view patient profiles
+   - [ ] Doctor can create/update prescriptions
+   - [ ] Implement prescription approval workflow (if needed)
+   - [ ] Doctor can view order history from their prescriptions
 
-✅ **Team:** Handoff ready, code reviewed, team trained, demo presented
+6. **Pharmacist Workflow (if applicable)**
+   - [ ] Pharmacist can verify prescriptions
+   - [ ] Pharmacist can see order fulfillment status
+   - [ ] Pharmacist can mark prescription as fulfilled
+
+### Frontend Tasks (Aisiti - 50%):
+1. **Payment Pages**
+   - [ ] Create /pages/checkout/payment page (redirect to Midtrans snap)
+   - [ ] Create /pages/order-confirmation page (show order #, payment status, next steps)
+
+2. **Payment Components**
+   - [ ] PaymentForm component (integrate Midtrans Snap)
+   - [ ] PaymentStatus component (pending/success/failed states)
+   - [ ] PaymentHistory component (list past transactions)
+   - [ ] InvoiceViewer component (PDF download)
+
+3. **Prescription Pages (for Doctor)**
+   - [ ] Create /pages/doctor/prescriptions page (list all prescriptions)
+   - [ ] Create /pages/doctor/prescriptions/new page (create prescription)
+   - [ ] Create /pages/doctor/prescriptions/:id page (view/edit prescription)
+
+4. **Prescription Pages (for Patient)**
+   - [ ] Create /pages/my-prescriptions page (list user's prescriptions)
+   - [ ] Create /pages/prescriptions/:id page (view prescription, buy medicines)
+
+5. **Prescription Components**
+   - [ ] PrescriptionForm component (select medicines, add dosage/frequency)
+   - [ ] PrescriptionItem component (medicine name, dosage, frequency, quantity)
+   - [ ] PrescriptionUpload component (image/PDF upload for existing prescriptions)
+   - [ ] DoctorSelector component (search & select doctor)
+   - [ ] PatientSelector component (for doctor to select patient)
+
+6. **Prescription UX**
+   - [ ] "Buy from prescription" button on prescription view
+   - [ ] Auto-fill cart from prescription (quantity × dosage)
+   - [ ] Show prescription expiry status
+   - [ ] Display doctor's name & contact on prescription
+
+### Support Tasks (Tsabita - 20%):
+- [ ] Setup Midtrans sandbox account for testing
+- [ ] Create payment test scenarios (success, failure, pending)
+- [ ] Write tests for payment & prescription services
+- [ ] Document payment API endpoints & Midtrans integration
+- [ ] Create deployment checklist for payment secrets
+
+**Owner:** Aisiti (100%) with Ilham supervision | Tsabita support  
+**Dependencies:** Shopping Cart ✅, Auth ✅, Stock API ✅
 
 ---
 
-**Generated:** 2026-11-16  
-**Next Review:** Weekly standup + sprint planning every Monday
+## FASE 7: NOTIFICATIONS & MESSAGING
+**Duration:** 2 weeks | **Status:** TODO  
+**Deliverables:** Real-time notifications, email alerts, user messaging
 
+### Backend Tasks (Ilham Lead - 60% + Aisiti 20%):
+1. **Notification System Architecture**
+   - [ ] Design notification model (type, recipient, content, status, read_at)
+   - [ ] Create Notifikasi migration with: user_id, type, title, message, data (JSON), read_at
+   - [ ] Implement notification service (create, read, mark as read)
+   - [ ] Implement WebSocket for real-time notifications (using Laravel Broadcasting or Socket.io)
+   - [ ] Create notification channels: In-app, Email, SMS (optional)
+
+2. **In-App Notifications**
+   - [ ] GET /api/notifications - list unread notifications
+   - [ ] GET /api/notifications/all - list all notifications (with pagination)
+   - [ ] PUT /api/notifications/:id/read - mark single notification as read
+   - [ ] PUT /api/notifications/read-all - mark all notifications as read
+   - [ ] DELETE /api/notifications/:id - delete notification
+   - [ ] WebSocket event for new notifications (real-time push)
+
+3. **Email Notifications**
+   - [ ] Setup email provider (Laravel Mail with SMTP or SendGrid)
+   - [ ] Create email templates: Order confirmation, Payment receipt, Shipment tracking, Low stock alert
+   - [ ] Implement notification queue (for async email sending)
+   - [ ] Create email log/history for debugging
+
+4. **Order-Related Notifications**
+   - [ ] Notify on order confirmation
+   - [ ] Notify on order status change (processing, shipped, delivered)
+   - [ ] Notify on payment confirmation
+   - [ ] Notify on prescription approval (if applicable)
+
+5. **Admin Notifications**
+   - [ ] Notify on low stock alert
+   - [ ] Notify on new order (admin dashboard)
+   - [ ] Notify on payment received
+   - [ ] Notify on prescription awaiting validation
+
+### Frontend Tasks (Aisiti - 40%):
+1. **Notification Pages**
+   - [ ] Create /pages/notifications page (list all notifications)
+
+2. **Notification Components**
+   - [ ] NotificationCenter component (dropdown in header)
+   - [ ] NotificationItem component (type icon, title, message, timestamp)
+   - [ ] NotificationBell component (badge with count, click to open center)
+   - [ ] NotificationToast component (auto-dismiss popup)
+
+3. **Real-time Notification UX**
+   - [ ] WebSocket connection on app load
+   - [ ] Toast notification when new notification arrives
+   - [ ] Sound alert option (optional)
+   - [ ] Notification preferences page (opt-in/out by type)
+
+4. **Notification Preferences**
+   - [ ] Create /pages/settings/notifications page
+   - [ ] Toggle email notifications by type
+   - [ ] Toggle in-app notifications
+   - [ ] Add notification sounds toggle
+
+### Support Tasks (Tsabita - 20%):
+- [ ] Setup email provider (SMTP/SendGrid) for testing
+- [ ] Create notification seed data
+- [ ] Write tests for notification service
+- [ ] Document notification API endpoints
+- [ ] Create user guide for notification preferences
+
+**Owner:** Ilham (60%) + Aisiti (20%) + Tsabita support  
+**Dependencies:** Auth ✅, Order API ✅
+
+---
+
+## FASE 8: DEPLOYMENT & POLISH
+**Duration:** 1 week | **Status:** TODO  
+**Deliverables:** Production deployment, monitoring, bug fixes, optimization
+
+### Backend Deployment (Ilham Lead - 40%):
+1. **Production Setup**
+   - [ ] Deploy Laravel backend to production server (e.g., AWS, DigitalOcean)
+   - [ ] Setup SSL/TLS certificate
+   - [ ] Configure environment variables (.env.production)
+   - [ ] Setup database backups (daily backups to S3 or external storage)
+   - [ ] Configure Redis for caching & session storage
+   - [ ] Setup queue worker for async jobs (email, notifications)
+
+2. **Performance Optimization**
+   - [ ] Database query optimization (add indexes, eager loading)
+   - [ ] API response caching (5-30 min TTL for read endpoints)
+   - [ ] CDN setup for image/static asset delivery
+   - [ ] Implement rate limiting on APIs (prevent abuse)
+   - [ ] Compress API responses (gzip)
+
+3. **Monitoring & Logging**
+   - [ ] Setup error tracking (e.g., Sentry)
+   - [ ] Setup application logging (CloudWatch, ELK, or similar)
+   - [ ] Setup uptime monitoring (e.g., UptimeRobot)
+   - [ ] Setup performance monitoring (APM: New Relic, DataDog, or similar)
+   - [ ] Create alerts for errors, slow queries, high resource usage
+
+4. **Security**
+   - [ ] Enable CORS properly (restrict to frontend domain only)
+   - [ ] Setup API rate limiting
+   - [ ] Implement CSRF protection (if needed)
+   - [ ] Rotate API keys & secrets
+   - [ ] Run security audit (OWASP Top 10 check)
+
+### Frontend Deployment (Aisiti Lead - 40%):
+1. **Production Build**
+   - [ ] Create production build (Next.js/React build optimization)
+   - [ ] Configure API endpoints for production
+   - [ ] Remove debug logs/console statements
+   - [ ] Optimize bundle size (code splitting, lazy loading)
+   - [ ] Setup environment variables (.env.production)
+
+2. **Frontend Hosting**
+   - [ ] Deploy to CDN/hosting (Vercel, Netlify, AWS S3+CloudFront)
+   - [ ] Setup domain & SSL certificate
+   - [ ] Configure caching headers (index.html: no-cache, assets: 1 year cache)
+   - [ ] Setup automatic deploys from Git (CI/CD pipeline)
+
+3. **Frontend Performance**
+   - [ ] Lighthouse audit (aim for 90+ score)
+   - [ ] Optimize images (next/image, WebP format)
+   - [ ] Implement service worker for offline support (optional)
+   - [ ] Monitor Core Web Vitals (LCP, FID, CLS)
+
+4. **Testing**
+   - [ ] Smoke test all major flows (login → catalog → checkout → order)
+   - [ ] Test on multiple devices/browsers (mobile, tablet, desktop)
+   - [ ] Test on slow networks (3G, 4G)
+   - [ ] Load test (simulate 100+ concurrent users)
+
+### DevOps & Infrastructure (Ilham - 20%):
+1. **CI/CD Pipeline**
+   - [ ] Setup GitHub Actions or similar (auto-test, auto-deploy on push)
+   - [ ] Backend pipeline: lint → test → build → deploy
+   - [ ] Frontend pipeline: lint → build → deploy
+   - [ ] Auto-rollback on failed deployments
+
+2. **Database**
+   - [ ] Production database setup (managed database service or self-hosted)
+   - [ ] Database migrations automated (run migrations on deploy)
+   - [ ] Database backup strategy (daily backups, 30-day retention)
+   - [ ] Database monitoring (slow query logs, connection pool status)
+
+### Documentation & Knowledge Transfer (Ilham - 20% + Aisiti 20%):
+1. **API Documentation**
+   - [ ] Complete OpenAPI/Swagger documentation
+   - [ ] Postman collection for all endpoints
+   - [ ] API error codes & status codes documented
+
+2. **Deployment Documentation**
+   - [ ] Step-by-step deployment guide
+   - [ ] Environment configuration guide
+   - [ ] Troubleshooting guide for common issues
+   - [ ] Incident response runbook
+
+3. **Codebase Documentation**
+   - [ ] Architecture overview (high-level diagram)
+   - [ ] Setup guide for new developers
+   - [ ] Coding standards & conventions
+   - [ ] Database schema diagram & documentation
+
+### Final Tasks (Team - 20%):
+- [ ] Code review & bug fixes (final polish)
+- [ ] UAT testing (Ilham reviews with stakeholders)
+- [ ] Create release notes (v1.0)
+- [ ] Team retrospective & lessons learned
+- [ ] Celebrate launch 🎉
+
+**Owner:** Ilham (40% DevOps + 20% Documentation) + Aisiti (40% Frontend + 20% Documentation) + Tsabita support  
+**Dependencies:** All previous phases ✅
+
+---
+
+## TIMELINE SUMMARY
+
+| Fase | Week | Duration | Status | Owner(s) |
+|------|------|----------|--------|----------|
+| **Fase 1** | 1-2 | 2 weeks | ✅ COMPLETE | Ilham + Aisiti + Tsabita |
+| **Fase 2** | 3-4 | 2 weeks | ✅ COMPLETE | Ilham + Aisiti + Tsabita |
+| **Fase 3** | 5-7 | 3 weeks | TODO | Aisiti (60%) + Ilham (20%) + Tsabita (20%) |
+| **Fase 4** | 8-10 | 3 weeks | TODO | Aisiti (100%) + Ilham supervision + Tsabita |
+| **Fase 5** | 11-12 | 2 weeks | TODO | Aisiti (100%) + Ilham supervision + Tsabita |
+| **Fase 6** | 13-15 | 3 weeks | TODO | Aisiti (50%) + Ilham (50%) + Tsabita (20%) |
+| **Fase 7** | 16-17 | 2 weeks | TODO | Ilham (60%) + Aisiti (20%) + Tsabita (20%) |
+| **Fase 8** | 18 | 1 week | TODO | Ilham (40%) + Aisiti (40%) + Tsabita support |
+
+**Total:** 15 weeks | **Team:** Ilham 35% + Aisiti 45% + Tsabita 20%
+
+---
+
+## TASK ALLOCATION BREAKDOWN
+
+### By Person:
+
+**Ilham (Lead, 35% allocation):**
+- Fase 3: Supervision + stock notification design
+- Fase 4: Supervision + catalog architecture review
+- Fase 5: Supervision + cart validation logic
+- Fase 6: Supervision + payment architecture
+- Fase 7: Backend notifications (60%) + messaging architecture
+- Fase 8: DevOps (40%) + documentation (20%)
+
+**Aisiti (Main Developer, 45% allocation):**
+- Fase 3: Stock API + Frontend (60% + 40%)
+- Fase 4: Product Catalog + Frontend (50% + 50%) **100% focus**
+- Fase 5: Order API + Checkout (60% + 40%) **100% focus**
+- Fase 6: Payment + Prescription (50% + 50%) **100% focus**
+- Fase 7: Real-time notifications (20%)
+- Fase 8: Frontend deployment (40%) + documentation (20%)
+
+**Tsabita (Support, 20% allocation):**
+- Fase 3: Testing + documentation + deployment checklist
+- Fase 4: Test data + performance testing
+- Fase 5: Test scenarios + API documentation
+- Fase 6: Midtrans setup + test scenarios
+- Fase 7: Email provider setup + notification testing
+- Fase 8: Support all teams + final QA
+
+---
+
+## SUCCESS CRITERIA PER FASE
+
+### Fase 3 Success:
+- Stock API fully functional (6 endpoints tested)
+- Low-stock alerts trigger correctly
+- Stock dashboard displays real-time data
+- 100% test coverage for stock services
+- Zero stock-related bugs in production
+
+### Fase 4 Success:
+- Product search returns results in <200ms
+- Filters work correctly (all combinations)
+- AI recommendations appear on product page
+- 200+ products in catalog with images
+- Lighthouse score >90 on catalog pages
+
+### Fase 5 Success:
+- Cart persists across browser sessions
+- Checkout flow completes end-to-end
+- Orders created successfully in database
+- Cart validation prevents invalid orders
+- Zero checkout abandonment due to bugs
+
+### Fase 6 Success:
+- Payment processing 100% successful for test transactions
+- Payment webhooks received & verified correctly
+- Prescriptions created & validated by doctors
+- Prescription medicines automatically added to cart
+- Zero payment-related customer complaints
+
+### Fase 7 Success:
+- Notifications delivered in real-time (<2sec latency)
+- Email notifications sent for all order updates
+- Notification preferences work correctly
+- Notification history searchable & filterable
+- 99.9% notification delivery rate
+
+### Fase 8 Success:
+- Production deployment zero-downtime
+- All endpoints respond in <500ms
+- Error rate <0.1%
+- Uptime >99.5% first week
+- Team knowledge transfer complete
+- v1.0 release notes published
+
+---
+
+## DEPENDENCIES & BLOCKERS
+
+**None currently.** All phases are sequential with clear handoffs:
+- Fase 3 → Fase 4 (stock ready, catalog depends on stock API)
+- Fase 4 → Fase 5 (catalog ready, checkout depends on product API)
+- Fase 5 → Fase 6 (orders ready, payments depend on order creation)
+- Fase 6 → Fase 7 (orders & prescriptions ready, notifications depend on order updates)
+- Fase 7 → Fase 8 (feature complete, deployment can begin)
+
+**Risk Mitigation:**
+- If Aisiti blocked: Ilham can pair-program to unblock
+- If payment vendor issues: Use test mode; escalate to vendor support
+- If deployment issues: Rollback to previous version; debug in staging
+
+---
+
+## COMMUNICATION & STANDUPS
+
+**Daily Standup:** 10:00 AM (15 min)
+- What we did yesterday
+- What we're doing today
+- Blockers or help needed
+
+**Weekly Sync:** Friday 4:00 PM (30 min)
+- Sprint progress review
+- Lessons learned
+- Plan for next week
+
+**Monthly Retrospective:** Last Friday of month (1 hour)
+- What went well
+- What didn't go well
+- Action items for next month
+
+---
+
+## VERSION HISTORY
+
+| Version | Date | Changes |
+|---------|------|---------|
+| v1.0 | 2026-11-16 | Initial roadmap (Fase 1-8, 15 weeks, 3-person team) |
