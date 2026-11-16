@@ -40,6 +40,28 @@ export default {
         'mediva-login': '0 24px 60px rgba(21, 101, 192, 0.22)',
         'mediva-cta': '0 10px 24px rgba(42, 136, 225, 0.4)',
       },
+      keyframes: {
+        'card-shimmer': {
+          '0%, 15%': {
+            transform: 'translateX(-150%) skewX(-20deg)',
+            opacity: '0',
+          },
+          '16%': {
+            opacity: '0.8',
+          },
+          '35%': {
+            transform: 'translateX(350%) skewX(-20deg)',
+            opacity: '0.8',
+          },
+          '36%, 100%': {
+            transform: 'translateX(350%) skewX(-20deg)',
+            opacity: '0',
+          },
+        },
+      },
+      animation: {
+        'card-shimmer': 'card-shimmer 5s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+      },
     },
   },
   plugins: [],

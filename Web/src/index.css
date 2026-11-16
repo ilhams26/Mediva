@@ -15,3 +15,40 @@
     -moz-osx-font-smoothing: grayscale;
   }
 }
+
+@keyframes aurora-1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(160px, 120px) scale(1.2);
+  }
+}
+
+@keyframes aurora-2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(-140px, -100px) scale(1.15);
+  }
+}
+
+.aurora-blob-1 {
+  animation: aurora-1 14s ease-in-out infinite alternate;
+}
+
+.aurora-blob-2 {
+  animation: aurora-2 18s ease-in-out infinite alternate;
+}
+
+.login-radial-bg {
+  background: radial-gradient(
+    ellipse at 50% 38%,
+    #ffffff 0%,
+    #eaf4fe 30%,
+    #a9d3f8 65%,
+    #42a5f5 100%
+  );
+}
+
