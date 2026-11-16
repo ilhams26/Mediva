@@ -3,9 +3,17 @@
 
 **Project:** Mediva Smart Medicine Platform  
 **Duration:** 15 weeks (Fase 1-8)  
-**Team:** 3 people (Ilham 35%, Aisiti 45%, Tsabita 20%)  
+**Team:** 3 people (Ilham 48%, Aisiti 32%, Tsabita 20%)  
 **Status:** Fase 1-2 COMPLETE ✅ | Fase 3-8 IN PROGRESS  
 **Start Date:** Week 6 (Monday next)
+
+---
+
+## ⚠️ UPDATED ALLOCATION (v2.0)
+**Changes from v1.0:**
+- Ilham: 35% → **48%** (added backend 30%, Fonté AI, OTP, Midtrans)
+- Aisiti: 45% → **32%** (frontend focus only, reduced backend)
+- Tsabita: 20% → **20%** (unchanged)
 
 ---
 
@@ -46,7 +54,7 @@
 **Duration:** 3 weeks | **Status:** TODO  
 **Deliverables:** Stock tracking, inventory API, stock alerts
 
-### Backend Tasks (Aisiti Lead - 60%):
+### Backend Tasks (Ilham Lead - 60%):
 1. **Stock API Endpoints**
    - [ ] GET /api/stock - list all stock with filters (kategori, ketersediaan)
    - [ ] GET /api/stock/:id - single stock detail
@@ -543,31 +551,27 @@
 
 ## TASK ALLOCATION BREAKDOWN
 
-### By Person:
+### By Person (UPDATED v2.0):
 
-**Ilham (Lead, 35% allocation):**
-- Fase 3: Supervision + stock notification design
-- Fase 4: Supervision + catalog architecture review
-- Fase 5: Supervision + cart validation logic
-- Fase 6: Supervision + payment architecture
-- Fase 7: Backend notifications (60%) + messaging architecture
+**Ilham (Lead, 48% allocation):** ⬆️ INCREASED
+- Fase 3: Backend Stock API (60%) + supervision
+- Fase 4: Backend Catalog API (50%) + Fonté AI integration (100%)
+- Fase 5: Backend Cart & Order API (60%)
+- Fase 6: Payment integration with Midtrans (100%) + Prescription API (50%)
+- Fase 7: Backend notifications (60%)
 - Fase 8: DevOps (40%) + documentation (20%)
 
-**Aisiti (Main Developer, 45% allocation):**
-- Fase 3: Stock API + Frontend (60% + 40%)
-- Fase 4: Product Catalog + Frontend (50% + 50%) **100% focus**
-- Fase 5: Order API + Checkout (60% + 40%) **100% focus**
-- Fase 6: Payment + Prescription (50% + 50%) **100% focus**
-- Fase 7: Real-time notifications (20%)
-- Fase 8: Frontend deployment (40%) + documentation (20%)
+**Aisiti (Main Developer, 32% allocation):** ⬇️ REDUCED (was 45%)
+- Fase 3: Stock Frontend (40%)
+- Fase 4: Product Catalog Frontend (50%)
+- Fase 5: Cart & Checkout Frontend (40%)
+- Fase 6: Prescription Frontend (50%)
+- Fase 7: Notification Frontend (40%)
+- Fase 8: Frontend deployment (40%)
 
-**Tsabita (Support, 20% allocation):**
-- Fase 3: Testing + documentation + deployment checklist
-- Fase 4: Test data + performance testing
-- Fase 5: Test scenarios + API documentation
-- Fase 6: Midtrans setup + test scenarios
-- Fase 7: Email provider setup + notification testing
-- Fase 8: Support all teams + final QA
+**Tsabita (Support, 20% allocation):** → UNCHANGED
+- All phases: Testing, QA, documentation, data setup, UAT
+- Consistent 20% across all Fase 3-8
 
 ---
 
@@ -658,3 +662,4 @@
 | Version | Date | Changes |
 |---------|------|---------|
 | v1.0 | 2026-11-16 | Initial roadmap (Fase 1-8, 15 weeks, 3-person team) |
+| v2.0 | 2026-11-16 | **UPDATED ALLOCATION:** Ilham 48% (+ backend 30%, Fonté AI, OTP, Midtrans), Aisiti 32% (frontend only), Tsabita 20% |
