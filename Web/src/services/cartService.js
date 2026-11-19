@@ -1,70 +1,125 @@
-const CART_KEY = 'mediva_cart';
 
+const CART_KEY = "mediva_cashier_cart";
+
+// Mengambil data keranjang dari localStorage
 export const getCart = () => {
-    try {
-        return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-    } catch {
-        return [];
-    }
+  try {
+    const cart = JSON.parse(
+      localStorage.getItem(CART_KEY)
+    );
+
+    return Array.isArray(cart) ? cart : [];
+  } catch {
+    return [];
+  }
 };
 
+// Menyimpan data keranjang
 export const saveCart = (cart) => {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  localStorage.setItem(
+    CART_KEY,
+    JSON.stringify(cart)
+  );
 };
 
+// Menambahkan obat ke keranjang
 export const addToCart = (medicine, quantity = 1) => {
-    const cart = getCart();
+  const cart = getCart();
 
-    const medicineID = medicine.id ?? medicine.obat_id;
+  const medicineId =
+    medicine.id ?? medicine.obat_id;
 
-    const existingIndex = cart.findIndex(
-        item => Number(item.obat_id) === Number(medicineID)
+  const stok = Number(
+    medicine.stok ?? medicine.stock ?? 0
+  );
+
+  const harga = Number(
+    medicine.harga ?? medicine.price ?? 0
+  );
+
+  const qty = Number(quantity);
+
+  if (
+    !medicineId ||
+    !Number.isInteger(qty) ||
+    qty < 1
+  ) {
+    throw new Error(
+      "Data obat atau jumlah tidak valid"
     );
+  }
 
-    if (existingIndex !== -1) {
-        cart[existingIndex].qty += quantity;
-    } else {
-        cart.push({
-            obat_id: medicineID,
-            nama: medicine.nama ?? medicine.nama_obat ?? medicine.name,
-            harga: Number(medicine.harga ?? medicine.price ?? 0),
-            jenis: medicine.jenis ?? "umum",
-            foto: medicine.foto ?? medicine.image ?? null,
-            qty: quantity,
-        });
-    }
+  const existing = cart.find(
+    (item) =>
+      String(item.obat_id) === String(medicineId)
+  );
 
-    saveCart(cart);
-    return cart;
+  const totalQty = (existing?.qty ?? 0) + qty;
+
+  if (totalQty > stok) {
+    throw new Error(
+      "Jumlah obat melebihi stok yang tersedia."
+    );
+  }
+
+  if (existing) {
+    existing.qty = totalQty;
+  } else {
+    cart.push({
+      obat_id: medicineId,
+      nama: medicine.nama ?? medicine.name,
+      harga,
+      qty,
+      stok,
+    });
+  }
+
+  saveCart(cart);
+
+  return cart;
 };
 
-export const updateCartQuantity = (medicineId, quantity) => {
-    const cart = getCart();
+// Mengubah jumlah obat
+export const updateCartQuantity = (id, quantity) => {
+  const cart = getCart();
 
-    const updatedCart = cart.map(item => 
-        Number(item.obat_id) === Number(medicineId) 
-        ? { ...item, qty: Math.max(1, quantity) } : item
-    );
+  const updated = cart.map((item) =>
+    String(item.obat_id) === String(id)
+      ? {
+          ...item,
+          qty: Math.max(1, Number(quantity)),
+        }
+      : item
+  );
 
-    saveCart(updatedCart);
-    return updatedCart;
+  saveCart(updated);
+
+  return updated;
 };
 
-export const removeFromCart = (medicineId) => {
-    const cart = getCart().filter(
-        item => Number(item.obat_id) !== Number(medicineId)
-    );
+// Menghapus obat dari keranjang
+export const removeFromCart = (id) => {
+  const updated = getCart().filter(
+    (item) =>
+      String(item.obat_id) !== String(id)
+  );
 
-    saveCart(cart);
-    return cart;
+  saveCart(updated);
+
+  return updated;
 };
 
+// Mengosongkan keranjang
 export const clearCart = () => {
-    localStorage.removeItem(CART_KEY);
+  localStorage.removeItem(CART_KEY);
 };
 
-export const getCartTotal = (cart = []) => {
-    return cart.reduce(
-        (total, item) => total + (item.harga * item.qty), 0
-    );
+// Menghitung total harga
+export const getCartTotal = (cart) => {
+  return cart.reduce(
+    (total, item) =>
+      total +
+      Number(item.harga) * Number(item.qty),
+    0
+  );
 };

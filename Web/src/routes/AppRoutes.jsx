@@ -6,8 +6,7 @@ import { RoleSelector } from "../pages/RoleSelector";
 import { Dashboard } from "../pages/Dashboard";
 import { KelolaObat } from "../pages/KelolaObat";
 import KelolaPengguna from "../pages/KelolaPengguna";
-import Cart from "../pages/Cart";
-import Checkout from "../pages/Checkout";
+import Kasir from "../pages/Kasir";
 
 export default function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -67,7 +66,7 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["staf"]}>
             <AppShell>
-              <Cart />
+              <Kasir />
             </AppShell>
           </ProtectedRoute>
         }
@@ -76,22 +75,12 @@ export default function AppRoutes() {
       <Route
         path="/cart"
         element={
-          <ProtectedRoute allowedRoles={["staf"]}>
-            <AppShell>
-              <Cart />
-            </AppShell>
-          </ProtectedRoute>
-        }
-      />
-      
-      {/* Checkout */}
+          <Navigate to="/kasir" replace />}
+        />
+
       <Route
         path="/checkout"
-        element={
-          <ProtectedRoute allowedRoles={["staf"]}>
-            <Checkout />
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/kasir" replace />}
       />
 
       <Route
