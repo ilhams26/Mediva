@@ -1,40 +1,26 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  ShoppingBag,
-  Banknote,
-  CheckCircle2,
-  Receipt,
-} from "lucide-react";
-
-import {
-  getCart,
-  getCartTotal,
-  clearCart,
-} from "../services/cartService";
-
-import {
-  createCashierTransaction,
-} from "../services/cashierService";
+import { ArrowLeft, ShoppingBag, CreditCard, Banknote, CheckCircle2, AlertCircle, } from "lucide-react";
+import api from "../services/api";
+import { getCart, getCartTotal, clearCart } from "../services/cartService";
 
 const formatRupiah = (value) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
+  }).format(value);
 
 export default function Checkout() {
   const navigate = useNavigate();
 
   const [cart, setCart] = useState([]);
-  const [amountReceived, setAmountReceived] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [resepId, setResepId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successTransaction, setSuccessTransaction] =
-    useState(null);
+  const [successOrder, setSuccessOrder] = useState(null);
 
   useEffect(() => {
     const savedCart = getCart();
@@ -45,102 +31,48 @@ export default function Checkout() {
     }
   }, [navigate]);
 
-  const total = useMemo(
-    () => getCartTotal(cart),
-    [cart]
+  const subtotal = getCartTotal(cart);
+
+  const requiresPrescription = cart.some(
+    (item) => item.jenis?.toLowerCase() === "keras"
   );
-
-  const received = Number(amountReceived) || 0;
-  const change = Math.max(0, received - total);
-
-  const isPaymentEnough =
-    received >= total && total > 0;
-
-  const totalItems = cart.reduce(
-    (sum, item) => sum + Number(item.qty || 0),
-    0
-  );
-
-  const handleAmountChange = (e) => {
-    const value = e.target.value;
-
-    if (value === "" || /^\d+$/.test(value)) {
-      setAmountReceived(value);
-      setError("");
-    }
-  };
-
-  const handleQuickAmount = (value) => {
-    setAmountReceived(String(value));
-    setError("");
-  };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
     setError("");
 
     if (cart.length === 0) {
-      setError("Keranjang transaksi masih kosong.");
+      setError("Keranjang belanja masih kosong.");
       return;
     }
 
-    if (!amountReceived || received <= 0) {
-      setError("Masukkan nominal uang yang diterima.");
-      return;
-    }
-
-    if (received < total) {
+    if (requiresPrescription && !resepId.trim()) {
       setError(
-        "Uang yang diterima belum mencukupi total pembayaran."
+        "Pesanan mengandung obat keras. Masukkan ID resep yang sudah disetujui staf."
       );
       return;
     }
 
-    const invalidItem = cart.some(
-      (item) =>
-        !item.obat_id ||
-        !Number.isInteger(Number(item.qty)) ||
-        Number(item.qty) < 1 ||
-        Number(item.qty) > Number(item.stok)
-    );
-
-    if (invalidItem) {
-      setError(
-        "Data obat atau jumlah pembelian tidak valid. Periksa kembali keranjang."
-      );
-      return;
-    }
-
-    // Kontrak payload yang perlu disepakati dengan backend.
     const payload = {
       items: cart.map((item) => ({
         obat_id: Number(item.obat_id),
         qty: Number(item.qty),
       })),
-      uang_diterima: received,
+      metode_pembayaran: paymentMethod,
+      ...(requiresPrescription
+        ? { resep_id: Number(resepId) }
+        : {}),
     };
 
     try {
       setLoading(true);
 
-      const transactionData =
-        await createCashierTransaction(payload);
+      const response = await api.post("/orders", payload);
 
-      setSuccessTransaction({
-        ...transactionData,
-        total: Number(
-          transactionData.total_harga ??
-          transactionData.total ??
-          total
-        ),
-        amount_received: Number(
-          transactionData.uang_diterima ?? received
-        ),
-        change: Number(
-          transactionData.kembalian ?? change
-        ),
-      });
+      const orderData =
+        response.data?.data ?? response.data?.order ?? response.data;
 
+      setSuccessOrder(orderData);
       clearCart();
       setCart([]);
     } catch (err) {
@@ -153,14 +85,14 @@ export default function Checkout() {
       setError(
         firstValidationError ||
           err.response?.data?.message ||
-          "Transaksi gagal disimpan. Periksa koneksi dan endpoint backend."
+          "Checkout gagal. Silakan periksa kembali pesanan kamu."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  if (successTransaction) {
+  if (successOrder) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-mediva-page p-5">
         <div className="w-full max-w-md rounded-2xl border border-mediva-border bg-white p-8 text-center shadow-mediva-panel">
@@ -170,78 +102,45 @@ export default function Checkout() {
           />
 
           <h1 className="text-2xl font-bold text-mediva-text">
-            Transaksi Berhasil!
+            Pesanan Berhasil Dibuat!
           </h1>
 
-          <p className="mt-2 text-sm text-mediva-muted">
-            Transaksi pelanggan berhasil disimpan.
+          <p className="mt-3 text-sm text-mediva-muted">
+            Pesanan kamu berhasil dikirim dan sedang diproses oleh sistem.
           </p>
 
           <div className="my-6 rounded-xl bg-mediva-chip p-4 text-left">
-            <div className="mb-4 flex items-center gap-2">
-              <Receipt
-                size={20}
-                className="text-mediva-primary"
-              />
-
-              <p className="font-semibold text-mediva-text">
-                Detail Pembayaran
-              </p>
-            </div>
-
             <p className="text-xs text-mediva-muted">
-              Kode Transaksi
+              Kode Pesanan
             </p>
 
             <p className="mt-1 font-bold text-mediva-primary">
-              {successTransaction.kode_transaksi ||
-                successTransaction.transaction_code ||
-                successTransaction.id ||
-                "-"}
+              {successOrder.order_code || "-"}
             </p>
 
-            <div className="my-4 border-t border-mediva-border" />
+            <p className="mt-4 text-xs text-mediva-muted">
+              Total Pembayaran
+            </p>
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-mediva-muted">
-                  Total Pembayaran
-                </span>
-
-                <span className="font-semibold">
-                  {formatRupiah(successTransaction.total)}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-mediva-muted">
-                  Uang Diterima
-                </span>
-
-                <span>
-                  {formatRupiah(
-                    successTransaction.amount_received
-                  )}
-                </span>
-              </div>
-
-              <div className="flex justify-between border-t border-mediva-border pt-3">
-                <span className="font-semibold text-mediva-text">
-                  Uang Kembalian
-                </span>
-
-                <span className="font-bold text-green-600">
-                  {formatRupiah(successTransaction.change)}
-                </span>
-              </div>
-            </div>
+            <p className="mt-1 text-lg font-bold text-mediva-text">
+              {formatRupiah(
+                Number(successOrder.total_harga ?? subtotal)
+              )}
+            </p>
           </div>
 
+          {paymentMethod === "midtrans" && (
+            <p className="mb-4 text-xs text-mediva-muted">
+              Pesanan menggunakan Midtrans. Proses pembayaran
+              memerlukan integrasi payment gateway lanjutan.
+            </p>
+          )}
+
           <button
-            onClick={() => navigate("/kasir")}
-            className="w-full rounded-xl bg-mediva-accent py-3 font-semibold text-white transition hover:bg-mediva-primary"
+            onClick={() => navigate("/")}
+            className="w-full rounded-xl bg-mediva-accent py-3 font-semibold text-white hover:bg-mediva-primary"
           >
-            Kembali ke Kasir
+            Kembali ke Beranda
           </button>
         </div>
       </div>
@@ -251,9 +150,10 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-mediva-page p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-6xl">
+
+        {/* Header */}
         <div className="mb-7">
           <button
-            type="button"
             onClick={() => navigate("/cart")}
             className="mb-4 flex items-center gap-2 text-sm font-medium text-mediva-primary hover:underline"
           >
@@ -262,17 +162,21 @@ export default function Checkout() {
           </button>
 
           <h1 className="text-2xl font-bold text-mediva-text sm:text-3xl">
-            Pembayaran Kasir
+            Checkout
           </h1>
 
           <p className="mt-1 text-sm text-mediva-muted">
-            Masukkan nominal uang yang diterima dari pelanggan.
+            Periksa pesanan dan pilih metode pembayaran.
           </p>
         </div>
 
         <form onSubmit={handleCheckout}>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+            {/* Main Content */}
             <div className="space-y-6 lg:col-span-2">
+
+              {/* Order Review */}
               <section className="rounded-2xl border border-mediva-border bg-white p-5 shadow-mediva-panel">
                 <div className="mb-5 flex items-center gap-2">
                   <ShoppingBag
@@ -281,7 +185,7 @@ export default function Checkout() {
                   />
 
                   <h2 className="font-bold text-mediva-text">
-                    Ringkasan Transaksi
+                    Review Pesanan
                   </h2>
                 </div>
 
@@ -291,110 +195,171 @@ export default function Checkout() {
                       key={item.obat_id}
                       className="flex items-center justify-between gap-4 py-4"
                     >
-                      <div className="min-w-0">
-                        <h3 className="truncate text-sm font-semibold text-mediva-text">
-                          {item.nama}
-                        </h3>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-mediva-chip">
+                          {item.foto ? (
+                            <img
+                              src={item.foto}
+                              alt={item.nama}
+                              className="h-full w-full object-contain"
+                            />
+                          ) : (
+                            <ShoppingBag
+                              size={24}
+                              className="text-mediva-accent"
+                            />
+                          )}
+                        </div>
 
-                        <p className="mt-1 text-xs text-mediva-muted">
-                          {item.qty} x {formatRupiah(item.harga)}
-                        </p>
+                        <div className="min-w-0">
+                          <h3 className="truncate text-sm font-semibold text-mediva-text">
+                            {item.nama}
+                          </h3>
+
+                          <p className="mt-1 text-xs text-mediva-muted">
+                            {item.qty} x {formatRupiah(item.harga)}
+                          </p>
+                        </div>
                       </div>
 
                       <p className="shrink-0 text-sm font-bold text-mediva-text">
-                        {formatRupiah(
-                          Number(item.harga) *
-                          Number(item.qty)
-                        )}
+                        {formatRupiah(item.harga * item.qty)}
                       </p>
                     </div>
                   ))}
                 </div>
               </section>
 
+              {/* Prescription */}
+              {requiresPrescription && (
+                <section className="rounded-2xl border border-mediva-border bg-white p-5 shadow-mediva-panel">
+                  <div className="mb-3 flex items-center gap-2">
+                    <AlertCircle
+                      size={20}
+                      className="text-orange-500"
+                    />
+
+                    <h2 className="font-bold text-mediva-text">
+                      Validasi Resep
+                    </h2>
+                  </div>
+
+                  <p className="mb-4 text-sm text-mediva-muted">
+                    Keranjang mengandung obat keras. Masukkan ID
+                    resep yang sebelumnya sudah diunggah dan
+                    disetujui oleh staf.
+                  </p>
+
+                  <label className="mb-2 block text-sm font-medium text-mediva-text">
+                    ID Resep
+                  </label>
+
+                  <input
+                    type="number"
+                    min="1"
+                    value={resepId}
+                    onChange={(e) => setResepId(e.target.value)}
+                    placeholder="Masukkan ID resep"
+                    required
+                    className="w-full rounded-xl border border-mediva-border px-4 py-3 text-sm outline-none focus:border-mediva-primary focus:ring-2 focus:ring-mediva-primary/10"
+                  />
+
+                  <p className="mt-2 text-xs text-mediva-muted">
+                    Resep harus berstatus disetujui sebelum checkout.
+                  </p>
+                </section>
+              )}
+
+              {/* Payment Method */}
               <section className="rounded-2xl border border-mediva-border bg-white p-5 shadow-mediva-panel">
                 <div className="mb-5 flex items-center gap-2">
-                  <Banknote
-                    size={22}
+                  <CreditCard
+                    size={21}
                     className="text-mediva-primary"
                   />
 
                   <h2 className="font-bold text-mediva-text">
-                    Pembayaran Tunai
+                    Metode Pembayaran
                   </h2>
                 </div>
 
-                <label className="mb-2 block text-sm font-medium text-mediva-text">
-                  Uang Diterima
-                </label>
+                <div className="space-y-3">
 
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={amountReceived}
-                  onChange={handleAmountChange}
-                  placeholder="Masukkan nominal uang"
-                  className="w-full rounded-xl border border-mediva-border px-4 py-3 text-sm outline-none focus:border-mediva-primary"
-                />
-
-                <div className="mt-4">
-                  <p className="mb-2 text-xs text-mediva-muted">
-                    Nominal cepat
-                  </p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {[50000, 100000, 200000, 500000].map(
-                      (value) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() =>
-                            handleQuickAmount(value)
-                          }
-                          className="rounded-lg border border-mediva-border px-3 py-2 text-xs font-medium hover:bg-mediva-chip"
-                        >
-                          {formatRupiah(value)}
-                        </button>
-                      )
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleQuickAmount(total)
+                  {/* Cash */}
+                  <label
+                    className={`flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition ${
+                      paymentMethod === "cash"
+                        ? "border-mediva-primary bg-mediva-chip"
+                        : "border-mediva-border hover:bg-mediva-page"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="cash"
+                      checked={paymentMethod === "cash"}
+                      onChange={(e) =>
+                        setPaymentMethod(e.target.value)
                       }
-                      className="rounded-lg border border-mediva-primary px-3 py-2 text-xs font-medium text-mediva-primary hover:bg-mediva-chip"
-                    >
-                      Uang Pas
-                    </button>
-                  </div>
-                </div>
+                      className="h-4 w-4 accent-mediva-primary"
+                    />
 
-                <div className="mt-5 rounded-xl bg-mediva-chip p-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-mediva-muted">
-                      Uang Diterima
-                    </span>
+                    <Banknote
+                      size={26}
+                      className="text-mediva-primary"
+                    />
 
-                    <span className="font-medium">
-                      {formatRupiah(received)}
-                    </span>
-                  </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-mediva-text">
+                        Tunai (Cash)
+                      </p>
 
-                  <div className="mt-3 flex justify-between">
-                    <span className="font-semibold">
-                      Kembalian
-                    </span>
+                      <p className="mt-1 text-xs text-mediva-muted">
+                        Pembayaran dilakukan saat pengambilan obat di apotek.
+                      </p>
+                    </div>
+                  </label>
 
-                    <span className="text-lg font-bold text-green-600">
-                      {formatRupiah(change)}
-                    </span>
-                  </div>
+                  {/* Midtrans */}
+                  <label
+                    className={`flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition ${
+                      paymentMethod === "midtrans"
+                        ? "border-mediva-primary bg-mediva-chip"
+                        : "border-mediva-border hover:bg-mediva-page"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="midtrans"
+                      checked={paymentMethod === "midtrans"}
+                      onChange={(e) =>
+                        setPaymentMethod(e.target.value)
+                      }
+                      className="h-4 w-4 accent-mediva-primary"
+                    />
+
+                    <CreditCard
+                      size={26}
+                      className="text-mediva-primary"
+                    />
+
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-mediva-text">
+                        Midtrans
+                      </p>
+
+                      <p className="mt-1 text-xs text-mediva-muted">
+                        Pembayaran online melalui Midtrans Sandbox.
+                      </p>
+                    </div>
+                  </label>
+
                 </div>
               </section>
             </div>
 
+            {/* Summary */}
             <div>
               <section className="sticky top-6 rounded-2xl border border-mediva-border bg-white p-5 shadow-mediva-panel">
                 <h2 className="mb-5 text-lg font-bold text-mediva-text">
@@ -403,13 +368,18 @@ export default function Checkout() {
 
                 <div className="space-y-3 border-b border-mediva-border-soft pb-5 text-sm">
                   <div className="flex justify-between text-mediva-muted">
-                    <span>Total Item</span>
-                    <span>{totalItems} item</span>
+                    <span>Total Produk</span>
+                    <span>
+                      {cart.reduce(
+                        (sum, item) => sum + item.qty,
+                        0
+                      )}
+                    </span>
                   </div>
 
                   <div className="flex justify-between text-mediva-muted">
-                    <span>Metode Pembayaran</span>
-                    <span>Tunai</span>
+                    <span>Subtotal</span>
+                    <span>{formatRupiah(subtotal)}</span>
                   </div>
                 </div>
 
@@ -417,7 +387,7 @@ export default function Checkout() {
                   <span>Total Pembayaran</span>
 
                   <span className="text-mediva-primary">
-                    {formatRupiah(total)}
+                    {formatRupiah(subtotal)}
                   </span>
                 </div>
 
@@ -429,21 +399,18 @@ export default function Checkout() {
 
                 <button
                   type="submit"
-                  disabled={!isPaymentEnough || loading}
-                  className="w-full rounded-xl bg-mediva-primary py-3 font-semibold text-white transition hover:bg-mediva-accent disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={loading || cart.length === 0}
+                  className="w-full rounded-xl bg-mediva-accent py-3.5 text-sm font-semibold text-white transition hover:bg-mediva-primary disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {loading
-                    ? "Menyimpan Transaksi..."
-                    : "Simpan Transaksi"}
+                  {loading ? "Memproses..." : "Buat Pesanan"}
                 </button>
 
                 <p className="mt-3 text-center text-xs text-mediva-muted">
-                  {isPaymentEnough
-                    ? "Pembayaran sudah mencukupi."
-                    : "Masukkan uang yang mencukupi total pembayaran."}
+                  Pastikan seluruh informasi pesanan sudah benar.
                 </p>
               </section>
             </div>
+
           </div>
         </form>
       </div>

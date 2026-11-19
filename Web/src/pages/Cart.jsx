@@ -1,30 +1,21 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Plus,
-  Minus,
-  Trash2,
-  ArrowLeft,
-  ShoppingCart,
-} from "lucide-react";
-
-import {
-  getCart,
-  updateCartQuantity,
-  removeFromCart,
-  getCartTotal,
-} from "../services/cartService";
+import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag, } from "lucide-react";
+import { getCart, updateCartQuantity, removeFromCart, getCartTotal, } from "../services/cartService";
+import { useAuth } from "../hooks/useAuth";
+import { PageHeader } from "../components/PageHeader";
 
 const formatRupiah = (value) =>
   new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
+  }).format(value);
 
 export default function Cart() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [cart, setCart] = useState([]);
 
   useEffect(() => {
@@ -33,176 +24,212 @@ export default function Cart() {
 
   const subtotal = getCartTotal(cart);
 
-  const totalItems = cart.reduce(
-    (sum, item) => sum + Number(item.qty),
-    0
-  );
-
   const handleQuantity = (id, quantity) => {
-    try {
-      const updated = updateCartQuantity(id, quantity);
-      setCart(updated);
-    } catch (err) {
-      alert(err.message);
-    }
+    const updated = updateCartQuantity(id, quantity);
+    setCart(updated);
   };
 
   const handleRemove = (id) => {
-    setCart(removeFromCart(id));
+    const updated = removeFromCart(id);
+    setCart(updated);
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    navigate("/checkout");
   };
 
   return (
-    <div className="min-h-screen bg-mediva-page p-4 sm:p-6 lg:p-8">
+    <div className="space-y-6">
+      <PageHeader
+        title="Kasir Offline"
+        subtitle="Periksa kembali obat yang dibeli."
+        role={user?.role}
+      />
       <div className="mx-auto max-w-6xl">
-        <button
-          onClick={() => navigate("/kasir")}
-          className="mb-5 flex items-center gap-2 text-sm text-mediva-primary"
-        >
-          <ArrowLeft size={18} />
-          Kembali ke Kasir
-        </button>
-
-        <div className="mb-7">
-          <h1 className="text-2xl font-bold text-mediva-text">
-            Keranjang Transaksi
-          </h1>
-
-          <p className="mt-1 text-sm text-mediva-muted">
-            Periksa obat dan jumlah pembelian pelanggan.
-          </p>
-        </div>
 
         {cart.length === 0 ? (
-          <div className="rounded-2xl border border-mediva-border bg-white p-10 text-center">
-            <ShoppingCart
-              size={42}
-              className="mx-auto mb-3 text-mediva-muted"
+          <div className="rounded-2xl border border-mediva-border bg-white px-5 py-16 text-center shadow-mediva-panel">
+            <ShoppingBag
+              size={60}
+              className="mx-auto mb-4 text-mediva-accent"
             />
 
-            <h2 className="font-semibold text-mediva-text">
-              Keranjang masih kosong
+            <h2 className="text-lg font-bold text-mediva-text">
+              Keranjang Masih Kosong
             </h2>
 
-            <p className="mt-1 text-sm text-mediva-muted">
-              Pilih obat terlebih dahulu untuk memulai transaksi.
+            <p className="mt-2 text-sm text-mediva-muted">
+              Belum ada obat yang ditambahkan ke keranjang.
             </p>
 
             <button
-              onClick={() => navigate("/kasir")}
-              className="mt-5 rounded-lg bg-mediva-primary px-5 py-2.5 text-white"
+              onClick={() => navigate("/")}
+              className="mt-6 rounded-xl bg-mediva-accent px-6 py-3 text-sm font-semibold text-white transition hover:bg-mediva-primary"
             >
-              Pilih Obat
+              Kembali ke Katalog
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+
+            {/* Product List */}
             <div className="space-y-4 lg:col-span-2">
-              {cart.map((item) => (
-                <div
-                  key={item.obat_id}
-                  className="rounded-xl border border-mediva-border bg-white p-5"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-semibold text-mediva-text">
-                        {item.nama}
-                      </h3>
 
-                      <p className="mt-1 text-sm text-mediva-muted">
-                        {formatRupiah(item.harga)} / item
-                      </p>
+              <div className="rounded-2xl border border-mediva-border bg-white p-5 shadow-mediva-panel">
+                <div className="mb-5 flex items-center gap-2">
+                  <ShoppingCart
+                    size={21}
+                    className="text-mediva-primary"
+                  />
 
-                      <p className="text-xs text-mediva-muted">
-                        Stok: {item.stok}
-                      </p>
+                  <h2 className="font-bold text-mediva-text">
+                    Daftar Obat ({cart.length})
+                  </h2>
+                </div>
+
+                <div className="divide-y divide-mediva-border-soft">
+                  {cart.map((item) => (
+                    <div
+                      key={item.obat_id}
+                      className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center"
+                    >
+                      {/* Product Image */}
+                      <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-mediva-chip">
+                        {item.foto ? (
+                          <img
+                            src={item.foto}
+                            alt={item.nama}
+                            className="h-full w-full object-contain"
+                          />
+                        ) : (
+                          <ShoppingBag
+                            size={30}
+                            className="text-mediva-accent"
+                          />
+                        )}
+                      </div>
+
+                      {/* Product Information */}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-mediva-text">
+                          {item.nama}
+                        </h3>
+
+                        <p className="mt-1 text-xs capitalize text-mediva-muted">
+                          {item.jenis}
+                        </p>
+
+                        <p className="mt-2 font-semibold text-green-600">
+                          {formatRupiah(item.harga)}
+                        </p>
+                      </div>
+
+                      {/* Quantity */}
+                      <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
+                        <div className="flex items-center rounded-lg border border-mediva-border">
+                          <button
+                            onClick={() =>
+                              handleQuantity(
+                                item.obat_id,
+                                item.qty - 1
+                              )
+                            }
+                            disabled={item.qty <= 1}
+                            className="p-2 text-mediva-primary disabled:opacity-30"
+                            aria-label="Kurangi jumlah"
+                          >
+                            <Minus size={15} />
+                          </button>
+
+                          <span className="min-w-8 text-center text-sm font-semibold text-mediva-text">
+                            {item.qty}
+                          </span>
+
+                          <button
+                            onClick={() =>
+                              handleQuantity(
+                                item.obat_id,
+                                item.qty + 1
+                              )
+                            }
+                            className="p-2 text-mediva-primary"
+                            aria-label="Tambah jumlah"
+                          >
+                            <Plus size={15} />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => handleRemove(item.obat_id)}
+                          className="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={15} />
+                          Hapus
+                        </button>
+                      </div>
+
+                      {/* Subtotal */}
+                      <div className="text-right sm:w-32">
+                        <p className="text-xs text-mediva-muted">
+                          Subtotal
+                        </p>
+
+                        <p className="mt-1 font-bold text-mediva-text">
+                          {formatRupiah(item.harga * item.qty)}
+                        </p>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
 
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() =>
-                          handleQuantity(
-                            item.obat_id,
-                            item.qty - 1
-                          )
-                        }
-                        disabled={item.qty <= 1}
-                        className="rounded-lg border p-2 disabled:opacity-40"
-                      >
-                        <Minus size={16} />
-                      </button>
+            </div>
 
-                      <span className="min-w-6 text-center font-semibold">
-                        {item.qty}
-                      </span>
+            {/* Order Summary */}
+            <div>
+              <div className="sticky top-6 rounded-2xl border border-mediva-border bg-white p-5 shadow-mediva-panel">
+                <h2 className="mb-5 text-lg font-bold text-mediva-text">
+                  Ringkasan Belanja
+                </h2>
 
-                      <button
-                        onClick={() =>
-                          handleQuantity(
-                            item.obat_id,
-                            item.qty + 1
-                          )
-                        }
-                        disabled={item.qty >= item.stok}
-                        className="rounded-lg border p-2 disabled:opacity-40"
-                      >
-                        <Plus size={16} />
-                      </button>
-
-                      <button
-                        onClick={() => handleRemove(item.obat_id)}
-                        className="ml-2 text-red-500"
-                        aria-label={`Hapus ${item.nama}`}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+                <div className="space-y-3 border-b border-mediva-border-soft pb-5 text-sm">
+                  <div className="flex justify-between text-mediva-muted">
+                    <span>Total Produk</span>
+                    <span>
+                      {cart.reduce((sum, item) => sum + item.qty, 0)}
+                    </span>
                   </div>
 
-                  <div className="mt-4 flex justify-between border-t pt-3">
-                    <span className="text-sm text-mediva-muted">
-                      Subtotal
-                    </span>
-
-                    <span className="font-semibold text-mediva-primary">
-                      {formatRupiah(item.harga * item.qty)}
-                    </span>
+                  <div className="flex justify-between text-mediva-muted">
+                    <span>Subtotal</span>
+                    <span>{formatRupiah(subtotal)}</span>
                   </div>
                 </div>
-              ))}
+
+                <div className="flex justify-between py-5 font-bold text-mediva-text">
+                  <span>Total</span>
+                  <span className="text-mediva-primary">
+                    {formatRupiah(subtotal)}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleCheckout}
+                  className="w-full rounded-xl bg-mediva-accent py-3.5 text-sm font-semibold text-white transition hover:bg-mediva-primary"
+                >
+                  Lanjut ke Checkout
+                </button>
+
+                <button
+                  onClick={() => navigate("/")}
+                  className="mt-3 w-full rounded-xl border border-mediva-border py-3 text-sm font-semibold text-mediva-primary transition hover:bg-mediva-chip"
+                >
+                  Lanjut Belanja
+                </button>
+              </div>
             </div>
 
-            <div className="h-fit rounded-xl border border-mediva-border bg-white p-5">
-              <h2 className="mb-5 font-semibold text-mediva-text">
-                Ringkasan Transaksi
-              </h2>
-
-              <div className="flex justify-between text-sm">
-                <span className="text-mediva-muted">
-                  Total item
-                </span>
-
-                <span>{totalItems} item</span>
-              </div>
-
-              <div className="my-4 border-t" />
-
-              <div className="flex justify-between">
-                <span className="font-medium">
-                  Total Pembayaran
-                </span>
-
-                <span className="font-bold text-mediva-primary">
-                  {formatRupiah(subtotal)}
-                </span>
-              </div>
-
-              <button
-                onClick={() => navigate("/checkout")}
-                className="mt-6 w-full rounded-lg bg-mediva-primary px-4 py-3 font-semibold text-white"
-              >
-                Lanjut Pembayaran
-              </button>
-            </div>
           </div>
         )}
       </div>
