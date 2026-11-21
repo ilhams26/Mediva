@@ -42,7 +42,6 @@ export function AuthProvider({ children }) {
     try {
       await logoutApi(token);
     } catch {
-      // Token mungkin sudah tidak valid — abaikan, sesi lokal sudah dibersihkan.
     }
   }, []);
 

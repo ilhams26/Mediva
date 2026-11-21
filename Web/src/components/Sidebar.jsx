@@ -20,7 +20,7 @@ export function Sidebar({ onLogoutClick }) {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[260px] flex-col bg-mediva-sidebar lg:flex">
       <div className="flex h-24 items-center justify-center border-b border-mediva-border/20 px-6">
-        <img src={logo} alt="Mediva Logo" className="h-12 w-auto max-w-[200px] object-contain" />
+        <img src={logo} alt="Mediva Logo" className="h-17 w-auto max-w-[200px] object-contain" />
       </div>
       
       <nav className="flex-1 space-y-1 p-4">
