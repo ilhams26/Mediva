@@ -5,12 +5,9 @@
 .aider-desk/
 .agents/
 .postman.json
-agent.md
-workflow.md
-design.md
 
 # Pengerjaan folder (local working directory - tidak di-push)
-Pengerjaan/
+Pengerjaan/rr
 
 # Node.js dependencies
 **/node_modules/
