@@ -13,8 +13,12 @@ class UpdateOrderStatusRequest extends FormRequest
 
     public function rules(): array
     {
+        // Status kanonis (Part 2 C2): tidak ada 'pending'.
+        // Transisi valid (OrderService::validateStatusTransition):
+        //   diproses -> siap_diambil | dibatalkan
+        //   siap_diambil -> selesai | dibatalkan
         return [
-            'status' => ['required', 'in:pending,diproses,siap_diambil,selesai,dibatalkan'],
+            'status' => ['required', 'in:diproses,siap_diambil,selesai,dibatalkan'],
         ];
     }
 

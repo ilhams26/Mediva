@@ -70,7 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [OrderController::class, 'show'])->name('orders.show');
         Route::patch('/{id}/status', [OrderController::class, 'updateStatus'])
             ->name('orders.updateStatus')
-            ->middleware('role:admin');
+            ->middleware('role:staf');
+        Route::post('/{id}/confirm-payment', [OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
         Route::post('/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
@@ -81,6 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ResepController::class, 'show'])->name('resep.show');
         Route::post('/{id}/validate', [ResepController::class, 'validate'])
             ->name('resep.validate')
-            ->middleware('role:admin');
+            ->middleware('role:staf');
     });
 });

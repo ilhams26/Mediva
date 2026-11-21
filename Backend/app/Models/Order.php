@@ -10,6 +10,8 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'created_by',
+        'order_source',
         'order_code',
         'metode_pembayaran',
         'total_harga',
@@ -40,5 +42,15 @@ class Order extends Model
     public function resep()
     {
         return $this->hasOne(Resep::class, 'order_id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function reservation()
+    {
+        return $this->hasOne(StockReservation::class, 'order_id');
     }
 }

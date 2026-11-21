@@ -42,7 +42,8 @@ class ResepService
                 'user_id' => $data['user_id'],
                 'order_id' => $data['order_id'] ?? null,
                 'foto_resep' => $data['foto_resep'],
-                'status' => 'pending',
+                // Part 2 C: resep memiliki status 'menunggu_validasi' | 'disetujui' | 'ditolak'
+                'status' => 'menunggu_validasi',
                 'validated_by' => null,
                 'validated_at' => null,
             ]);
@@ -70,7 +71,7 @@ class ResepService
                 throw new \InvalidArgumentException('Status harus disetujui atau ditolak');
             }
 
-            if ($resep->status !== 'pending') {
+            if ($resep->status !== 'menunggu_validasi') {
                 throw new \InvalidArgumentException('Resep sudah divalidasi, tidak bisa diubah');
             }
 
