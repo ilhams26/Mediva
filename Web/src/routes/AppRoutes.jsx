@@ -5,8 +5,16 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { RoleSelector } from "../pages/RoleSelector";
 import { Dashboard } from "../pages/Dashboard";
 import { KelolaObat } from "../pages/KelolaObat";
+import TambahObat from "../pages/TambahObat";
+import EditObat from "../pages/EditObat";
+import KelolaKategori from "../pages/KelolaKategori";
+import DataObat from "../pages/DataObat";
 import KelolaPengguna from "../pages/KelolaPengguna";
 import Kasir from "../pages/Kasir";
+import KelolaStok from "../pages/KelolaStok";
+import TambahBatch from "../pages/TambahBatch";
+import AdjustStok from "../pages/AdjustStok";
+import RiwayatStok from "../pages/RiwayatStok";
 
 export default function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -34,9 +42,129 @@ export default function AppRoutes() {
         path="/obat"
         element={
           isAuthenticated ? (
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["staf"]}>
               <AppShell>
                 <KelolaObat />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/obat/tambah"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf"]}>
+              <AppShell>
+                <TambahObat />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/obat/edit/:id"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf"]}>
+              <AppShell>
+                <EditObat />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/kategori"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf"]}>
+              <AppShell>
+                <KelolaKategori />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/stok"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf", "admin"]}>
+              <AppShell>
+                <KelolaStok />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/stok/tambah"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf", "admin"]}>
+              <AppShell>
+                <TambahBatch />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/stok/adjust/:id"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf", "admin"]}>
+              <AppShell>
+                <AdjustStok />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/stok/riwayat"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf", "admin"]}>
+              <AppShell>
+                <RiwayatStok />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/obat/data"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AppShell>
+                <DataObat />
               </AppShell>
             </ProtectedRoute>
           ) : (

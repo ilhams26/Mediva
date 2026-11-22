@@ -20,7 +20,7 @@ export const NAV = {
   admin: [
     { label: 'Beranda', to: '/', icon: HomeIcon },
     { label: 'Kelola Pengguna', to: '/pengguna', icon: UsersIcon },
-    { label: 'Data Obat', to: '/obat', icon: BeakerIcon },
+    { label: 'Data Obat', to: '/obat/data', icon: BeakerIcon },
     { label: 'Laporan', to: '/laporan', icon: ChartBarIcon },
   ],
 };

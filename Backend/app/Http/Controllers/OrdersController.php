@@ -104,7 +104,9 @@ class OrdersController extends Controller
         } catch (ModelNotFoundException) {
             return $this->notFound('Order tidak ditemukan.');
         } catch (ValidationException $e) {
-            return $this->error($e->errors()[array_key_first($e->errors())]?.[0] ?? 'Akses ditolak.', 403);
+            $errors = $e->errors();
+            $message = $errors[array_key_first($errors)][0] ?? 'Akses ditolak.';
+            return $this->error($message, 403);
         }
 
         return $this->success(new OrderResource($order), 'Detail order berhasil diambil.');
@@ -121,7 +123,8 @@ class OrdersController extends Controller
         } catch (ModelNotFoundException) {
             return $this->notFound('Order tidak ditemukan.');
         } catch (ValidationException $e) {
-            $message = $e->errors()[array_key_first($e->errors())]?.[0] ?? 'Transisi status tidak valid.';
+            $errors = $e->errors();
+            $message = $errors[array_key_first($errors)][0] ?? 'Transisi status tidak valid.';
             return $this->error($message, 400);
         }
 
@@ -147,7 +150,9 @@ class OrdersController extends Controller
         try {
             $order = $this->orderService->confirmPayment($order);
         } catch (ValidationException $e) {
-            return $this->error($e->errors()[array_key_first($e->errors())]?.[0] ?? 'Status pesanan atau reservasi tidak valid.', 400);
+            $errors = $e->errors();
+            $message = $errors[array_key_first($errors)][0] ?? 'Status pesanan atau reservasi tidak valid.';
+            return $this->error($message, 400);
         }
 
         return $this->success(new OrderResource($order), 'Pembayaran telah dikonfirmasi dan stok dikurangi.');
@@ -173,7 +178,8 @@ class OrdersController extends Controller
         try {
             $order = $this->orderService->cancelOrder($order);
         } catch (ValidationException $e) {
-            $message = $e->errors()[array_key_first($e->errors())]?.[0] ?? 'Order tidak dapat dibatalkan.';
+            $errors = $e->errors();
+            $message = $errors[array_key_first($errors)][0] ?? 'Order tidak dapat dibatalkan.';
             return $this->error($message, 400);
         }
 

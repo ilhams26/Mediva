@@ -74,7 +74,7 @@ class AuthService
 
         if (!$user->is_active) {
             throw ValidationException::withMessages([
-                'login_id' => ['Akun belum diverifikasi. Silakan verifikasi OTP terlebih dahulu'],
+                'login_id' => ['Akun Anda telah dinonaktifkan. Silakan hubungi staf atau admin.'],
             ]);
         }
 

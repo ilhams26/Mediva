@@ -42,7 +42,7 @@ class StockReservationService
     public const DURASI_TUNAI_DETIK = 48 * 3600;
 
     /**
-     * Stok fisik yang tersedia = jumah_sisa batch aktif (non-expired) MINUS
+     * Stok fisik yang tersedia = jumlah_sisa batch aktif (non-expired) MINUS
      * jumlah yang masih di-reserve (status 'reserved').
      *
      * @return int
@@ -51,7 +51,7 @@ class StockReservationService
     {
         $physical = Batch::where('obat_id', $obatId)
             ->where('expired_date', '>', now())
-            ->sum('jumah_sisa');
+            ->sum('jumlah_sisa');
 
         $reserved = StockReservationItem::query()
             ->join('stock_reservations', 'stock_reservation_items.reservation_id', '=', 'stock_reservations.id')
@@ -123,14 +123,14 @@ class StockReservationService
                     continue; // defensive — FK RESTRICT seharusnya mencegah
                 }
 
-                $batch->jumah_sisa -= $item->jumah;
+                $batch->jumlah_sisa -= $item->jumlah;
                 $batch->save();
 
                 PergerakanStok::create([
                     'obat_id' => $batch->obat_id,
                     'batch_id' => $batch->id,
                     'tipe' => 'keluar',
-                    'jumah' => $item->jumah,
+                    'jumlah' => $item->jumlah,
                     'sumber' => 'order_payment_confirmed',
                     'referensi_id' => $order->id,
                     'keterangan' => "Pembayaran konfirmasi order #{$order->id}",
@@ -203,17 +203,17 @@ class StockReservationService
     {
         $batches = Batch::where('obat_id', $obatId)
             ->where('expired_date', '>', now())
-            ->where('jumah_sisa', '>', 0)
+            ->where('jumlah_sisa', '>', 0)
             ->orderBy('expired_date', 'asc')
             ->lockForUpdate()
             ->get();
 
-        $physical = $batches->sum('jumah_sisa');
+        $physical = $batches->sum('jumlah_sisa');
         $reserved = StockReservationItem::query()
             ->join('stock_reservations', 'stock_reservation_items.reservation_id', '=', 'stock_reservations.id')
             ->where('stock_reservations.status', 'reserved')
             ->whereIn('stock_reservation_items.batch_id', $batches->pluck('id'))
-            ->sum('stock_reservation_items.jumah');
+            ->sum('stock_reservation_items.jumlah');
 
         $available = max(0, (int) $physical - (int) $reserved);
 
@@ -228,11 +228,11 @@ class StockReservationService
             if ($remaining <= 0) {
                 break;
             }
-            $deduct = min($remaining, $batch->jumah_sisa);
+            $deduct = min($remaining, $batch->jumlah_sisa);
             StockReservationItem::create([
                 'reservation_id' => $reservation->id,
                 'batch_id' => $batch->id,
-                'jumah' => $deduct,
+                'jumlah' => $deduct,
             ]);
             $remaining -= $deduct;
         }
