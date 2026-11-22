@@ -235,7 +235,7 @@ export default function Kasir() {
       setLoadingPayment(true);
 
       const response = await api.post(
-        "/orders",
+        "/kasir/transaksi",
         {
           items: cart.map((item) => ({
             obat_id: Number(item.obat_id),

@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BatchController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ObatController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ResepController;
+use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +18,11 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ENDPOINTS
 
 Route::get('/health', [HealthController::class, 'check'])->name('health');
+
+// Product Catalog — Katalog publik (akses tanpa auth khusus; untuk pembeli & staf/admin)
+Route::get('/katalog/kategoris', [KategoriController::class, 'index'])->name('katalog.kategoris');
+Route::get('/katalog/obats', [ObatController::class, 'catalogIndex'])->name('katalog.obats');
+Route::get('/katalog/obats/{id}', [ObatController::class, 'catalogShow'])->name('katalog.obats.show');
 
 // Authentication
 Route::post('/register', [AuthController::class, 'register'])
@@ -65,13 +75,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Orders
     Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'index'])->name('orders.index');
-        Route::post('/', [OrderController::class, 'store'])->name('orders.store');
-        Route::get('/{id}', [OrderController::class, 'show'])->name('orders.show');
-        Route::patch('/{id}/status', [OrderController::class, 'updateStatus'])
+        Route::get('/', [OrdersController::class, 'index'])->name('orders.index');
+        Route::post('/', [OrdersController::class, 'store'])->name('orders.store');
+        Route::get('/{id}', [OrdersController::class, 'show'])->name('orders.show');
+        Route::patch('/{id}/status', [OrdersController::class, 'updateStatus'])
             ->name('orders.updateStatus')
-            ->middleware('role:admin');
-        Route::post('/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+            ->middleware('role:staf');
+        Route::post('/{id}/confirm-payment', [OrdersController::class, 'confirmPayment'])->name('orders.confirm-payment');
+        Route::post('/{id}/pay', [PaymentController::class, 'initiate'])->name('orders.pay');
+        Route::post('/{id}/cancel', [OrdersController::class, 'cancel'])->name('orders.cancel');
     });
 
     // Resep
@@ -81,6 +93,44 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ResepController::class, 'show'])->name('resep.show');
         Route::post('/{id}/validate', [ResepController::class, 'validate'])
             ->name('resep.validate')
-            ->middleware('role:admin');
+            ->middleware('role:staf');
+    });
+
+    // Product Catalog — Management obat (read: staf & admin; write: staf only)
+    Route::middleware(['auth:sanctum', 'role:staf,admin'])->prefix('obat')->group(function () {
+        Route::get('/', [ObatController::class, 'index'])->name('obat.index');
+        Route::get('/{id}', [ObatController::class, 'show'])->name('obat.show');
+    });
+
+    Route::middleware(['auth:sanctum', 'role:staf'])->prefix('obat')->group(function () {
+        Route::post('/', [ObatController::class, 'store'])->name('obat.store');
+        Route::put('/{id}', [ObatController::class, 'update'])->name('obat.update');
+        Route::delete('/{id}', [ObatController::class, 'destroy'])->name('obat.destroy');
+    });
+
+    // Product Catalog — Management kategori (staf only)
+    Route::middleware(['auth:sanctum', 'role:staf'])->prefix('kategoris')->group(function () {
+        Route::post('/', [KategoriController::class, 'store'])->name('kategoris.store');
+        Route::put('/{id}', [KategoriController::class, 'update'])->name('kategoris.update');
+        Route::delete('/{id}', [KategoriController::class, 'destroy'])->name('kategoris.destroy');
+    });
+
+    // Stock & Batch Management (Fase 4)
+    Route::middleware(['auth:sanctum', 'role:staf,admin'])->prefix('batches')->group(function () {
+        Route::get('/', [BatchController::class, 'index'])->name('batches.index');
+        Route::get('/{id}', [BatchController::class, 'show'])->name('batches.show');
+        Route::post('/', [BatchController::class, 'store'])->name('batches.store');
+        Route::put('/{id}/adjust', [BatchController::class, 'adjust'])->name('batches.adjust');
+    });
+
+    // POS Kasir (Fase 5)
+    Route::middleware(['auth:sanctum', 'role:staf'])->post('/kasir/transaksi', [KasirController::class, 'store'])->name('kasir.transaksi');
+
+    // Stock movement history (Fase 4)
+    Route::middleware(['auth:sanctum', 'role:staf,admin'])->prefix('stock')->group(function () {
+        Route::get('/movements', [StockMovementController::class, 'index'])->name('stock.movements');
     });
 });
+
+// PAYMENT WEBHOOK — Midtrans notification (signature-based, no auth user)
+Route::post('/payment/midtrans/callback', [PaymentController::class, 'callback'])->name('payment.midtrans.callback');

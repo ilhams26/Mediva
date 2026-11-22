@@ -58,6 +58,9 @@ class AuthController extends Controller
             $request->password
         );
 
-        return $this->success(null, 'Password berhasil diubah. Silakan login kembali');
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil diubah. Silakan login kembali',
+        ], 200);
     }
 }

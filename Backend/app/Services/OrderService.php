@@ -5,80 +5,106 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Obat;
-use App\Models\Batch;
-use App\Models\PergerakanStok;
 use App\Models\Resep;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * OrderService - Business logic untuk order management
- * 
+ * OrderService — Business logic untuk order management (kepentingan Master:
+ * Mobile Order & Offline POS).
+ *
  * Responsibilities:
- * - Create order dengan validation stok dan resep
- * - FEFO (First Expired First Out) logic untuk stock deduction
- * - Order status management
- * - Order cancellation dengan stock refund
+ * - CreateOrder: validasi stok, resep, buat order + items, reservation (Master Part 3)
+ * - Status transitions (Part 2 C2: kanonis = diproses/siap_diambil/selesai/dibatalkan)
+ * - confirmPayment (idempotent, Master Part 3 C)
+ * - cancelOrder (release reservation, Master Part 3 C)
  */
 class OrderService
 {
+    public function __construct(private StockReservationService $stockReservation)
+    {
+    }
+
     /**
-     * @param int $userId
-     * @param array $items 
-     * @param array $orderData 
+     * Buat order baru.
+     *
+     * Master Part 2 (kepentingan):
+     *   Mobile: user_id wajib, created_by NULL, status dimulai 'diproses'.
+     *   POS:    user_id boleh NULL, created_by wajib, status dimulai 'selesai'.
+     *
+     * Master Part 3: checkout -> reservation stok (FEFO), physical dikurangi
+     * saat confirmPayment (POS) atau pay-on-pickup (mobile).
+     *
+     * @param array $data ['user_id'=>?int, 'created_by'=>?int, 'order_source'=>'mobile'|'pos',
+     *                     'items'=>array, 'metode_pembayaran'=>string, 'resep_id'=>?int]
      * @return Order
      * @throws ValidationException
      */
-    public function createOrder(int $userId, array $items, array $orderData = []): Order
+    public function createOrder(array $data): Order
     {
-        // Step 1: Validate dan ambil data obat
+        $items = $data['items'];
+
         $obatsData = $this->validateAndGetObats($items);
-        
-        // Step 2: Check obat keras (butuh resep)
-        $this->validatePrescription($userId, $obatsData, $orderData['resep_id'] ?? null);
-        
-        // Step 3: Calculate total
+        $this->validatePrescription($obatsData, $data['user_id'] ?? null, $data['resep_id'] ?? null);
         $totalHarga = $this->calculateTotal($obatsData, $items);
-        
-        // Step 4: Create order dalam transaction
-        return DB::transaction(function () use ($userId, $items, $orderData, $obatsData, $totalHarga) {
-            // Generate order code (format: ORD-20261103-001)
-            $orderCode = $this->generateOrderCode();
-            
+
+        $orderSource = $data['order_source'] ?? 'mobile';
+        $isMobile = $orderSource === 'mobile';
+
+        if ($isMobile && !($data['user_id'] ?? null)) {
+            throw ValidationException::withMessages(['user_id' => ['Order mobile membutuhkan user_id (pembeli).']]);
+        }
+        if (!$isMobile && !($data['created_by'] ?? null)) {
+            throw ValidationException::withMessages(['created_by' => ['Order POS membutuhkan created_by (staff).']]);
+        }
+
+        return DB::transaction(function () use ($data, $obatsData, $totalHarga, $isMobile): Order {
             $order = Order::create([
-                'user_id' => $userId,
-                'order_code' => $orderCode,
+                'user_id' => $isMobile ? $data['user_id'] : null,
+                'created_by' => $isMobile ? null : $data['created_by'],
+                'order_source' => $isMobile ? 'mobile' : 'pos',
+                'order_code' => $this->generateOrderCode(),
+                'metode_pembayaran' => $data['metode_pembayaran'] ?? ($isMobile ? 'cash' : 'cash'),
                 'total_harga' => $totalHarga,
-                'metode_pembayaran' => $orderData['metode_pembayaran'] ?? 'cash',
-                'status' => 'pending', // Pending payment
-                'payment_status' => 'unpaid',
-                'resep_id' => $orderData['resep_id'] ?? null,
+                // Keadaan awal: mobile = diproses (payment unpaid); POS = selesai (payment paid)
+                'status' => $isMobile ? 'diproses' : 'selesai',
+                'payment_status' => $isMobile ? 'unpaid' : 'paid',
             ]);
-            
+
             foreach ($items as $item) {
                 $obat = $obatsData[$item['obat_id']];
-                
                 OrderItem::create([
                     'order_id' => $order->id,
                     'obat_id' => $obat->id,
-                    'qty' => $item['qty'],
                     'harga' => $obat->harga,
+                    'qty' => $item['qty'],
                     'subtotal' => $obat->harga * $item['qty'],
                 ]);
-                
-                $this->deductStock($obat->id, $item['qty'], $order->id, $userId);
             }
-            
-            return $order->fresh(['items.obat', 'user', 'resep']);
+
+            // Link resep (resep di-upload via mobile app, divalidasi staf)
+            if (!empty($data['resep_id'])) {
+                $resep = Resep::find($data['resep_id']);
+                if ($resep) {
+                    $resep->order_id = $order->id;
+                    $resep->save();
+                }
+            }
+
+            // Master Part 3: checkout -> reservation FEFO (physical diturunkan pada confirm)
+            $this->stockReservation->reserveForOrder($order);
+
+            // POS: fisik dikeluarkan + lunas langsung (cash di-pickup)
+            if (!$isMobile) {
+                $this->stockReservation->confirmPayment($order);
+            }
+
+            return $order->fresh(['items.obat', 'user', 'resep', 'reservation']);
         });
     }
-    
+
     /**
-     * Validate items dan ambil data obat
-     * 
-     * @param array $items
-     * @return array - Keyed by obat_id
-     * @throws ValidationException
+     * Validasi items + obat: obat aktif, stok tersedia (physical - reserved).
      */
     private function validateAndGetObats(array $items): array
     {
@@ -87,93 +113,73 @@ class OrderService
                 'items' => ['Order harus memiliki minimal 1 item.'],
             ]);
         }
-        
+
         $obatIds = array_column($items, 'obat_id');
-        $obats = Obat::whereIn('id', $obatIds)
-                    ->where('is_active', true)
-                    ->get()
-                    ->keyBy('id');
-        
-        // Validate setiap item
+        $obats = Obat::whereIn('id', $obatIds)->where('is_active', true)->get()->keyBy('id');
+
         $result = [];
         foreach ($items as $item) {
             $obatId = $item['obat_id'];
             $qty = $item['qty'];
-            
+
             if (!$obats->has($obatId)) {
                 throw ValidationException::withMessages([
                     "items.{$obatId}" => ["Obat dengan ID {$obatId} tidak ditemukan atau tidak aktif."],
                 ]);
             }
-            
+
             $obat = $obats->get($obatId);
-            $totalStok = $this->getTotalAvailableStock($obatId);
-            if ($totalStok < $qty) {
+            $available = $this->stockReservation->availableStock($obatId);
+            if ($available < $qty) {
                 throw ValidationException::withMessages([
-                    "items.{$obatId}" => ["Stok {$obat->nama} tidak mencukupi. Tersedia: {$totalStok}, diminta: {$qty}."],
+                    "items.{$obatId}" => ["Stok {$obat->nama} tidak mencukupi. Tersedia: {$available}, diminta: {$qty}."],
                 ]);
             }
-            
+
             $result[$obatId] = $obat;
         }
-        
+
         return $result;
     }
-    
+
     /**
-     * Get total stok tersedia (dari batch yang belum expired)
-     * 
-     * @param int $obatId
-     * @return int
+     * Validasi resep untuk obat keras.
+     * Master Part 2: resep hanya dari pembeli mobile;
+     * Master Part 4 C3: resep.user_id wajib NOT NULL; staf divalidasi.
      */
-    private function getTotalAvailableStock(int $obatId): int
+    private function validatePrescription(array $obatsData, ?int $buyerUserId, ?int $resepId): void
     {
-        return Batch::where('obat_id', $obatId)
-                   ->where('expired_date', '>', now())
-                   ->sum('jumlah_sisa');
-    }
-    
-    /**
-     * Validate resep untuk obat keras
-     */
-    private function validatePrescription(int $userId, array $obatsData, $resepId): void
-    {
-        $hasObatKeras = collect($obatsData)->contains('jenis', 'keras');
-        
-        if (!$hasObatKeras) {
+        $hasKeras = collect($obatsData)->contains('jenis', 'keras');
+        if (!$hasKeras) {
             return;
         }
-        
+
         if (!$resepId) {
             throw ValidationException::withMessages([
                 'resep_id' => ['Order mengandung obat keras. Resep wajib diupload dan divalidasi.'],
             ]);
         }
-        
-        $resep = Resep::where('id', $resepId)
-                     ->where('user_id', $userId)
-                     ->first();
-        
+
+        $resep = Resep::where('id', $resepId)->first();
         if (!$resep) {
             throw ValidationException::withMessages([
-                'resep_id' => ['Resep tidak ditemukan atau bukan milik Anda.'],
+                'resep_id' => ['Resep tidak ditemukan.'],
             ]);
         }
-        
+
         if ($resep->status !== 'disetujui') {
             throw ValidationException::withMessages([
                 'resep_id' => ['Resep belum divalidasi oleh staf. Status: ' . $resep->status],
             ]);
         }
+
+        if ($buyerUserId && $resep->user_id !== $buyerUserId) {
+            throw ValidationException::withMessages([
+                'resep_id' => ['Resep tidak ditemukan atau tidak dapat ditautkan dengan order ini.'],
+            ]);
+        }
     }
-    
-    /**
-     * Calculate total harga order
-     * 
-     * @param array $obatsData
-     * @param array $items
-     * @return float
-     */
+
     private function calculateTotal(array $obatsData, array $items): float
     {
         $total = 0;
@@ -183,211 +189,112 @@ class OrderService
         }
         return $total;
     }
-    
-    /**
-     * Generate unique order code (Format: ORD-YYYYMMDD-XXX)
-     */
+
     private function generateOrderCode(): string
     {
         $date = now()->format('Ymd');
         $prefix = "ORD-{$date}-";
-        
+
         $lastOrder = Order::where('order_code', 'LIKE', "{$prefix}%")
-                        ->orderBy('id', 'desc')
-                        ->first();
-        
-        if (!$lastOrder) {
-            $sequence = 1;
-        } else {
-            $lastCode = $lastOrder->order_code;
-            $lastSequence = (int) substr($lastCode, -3);
-            $sequence = $lastSequence + 1;
-        }
-        
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $sequence = ($lastOrder ? (int) substr($lastOrder->order_code, -3) : 0) + 1;
+
         return $prefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }
-    
-    /**
-     * Deduct stock dengan FEFO (First Expired First Out)
-     * Batch expired date terdekat dipakai dulu
-     */
-    private function deductStock(int $obatId, int $qty, int $orderId, int $userId): void
-    {
-        $remaining = $qty;
-        
-        $batches = Batch::where('obat_id', $obatId)
-                       ->where('expired_date', '>', now())
-                       ->where('jumlah_sisa', '>', 0)
-                       ->orderBy('expired_date', 'asc')
-                       ->lockForUpdate()
-                       ->get();
-        
-        foreach ($batches as $batch) {
-            if ($remaining <= 0) {
-                break;
-            }
-            
-            $deduct = min($remaining, $batch->jumlah_sisa);
-            
-            $batch->jumlah_sisa -= $deduct;
-            $batch->save();
-            
-            PergerakanStok::create([
-                'obat_id' => $obatId,
-                'batch_id' => $batch->id,
-                'tipe' => 'keluar',
-                'jumlah' => $deduct,
-                'sumber' => 'order',
-                'referensi_id' => $orderId,
-                'keterangan' => "Penjualan order #{$orderId}",
-                'created_by' => $userId,
-            ]);
-            
-            $remaining -= $deduct;
-        }
-        
-        if ($remaining > 0) {
-            throw new \Exception("Stok tidak mencukupi untuk obat ID {$obatId}. Kurang: {$remaining}");
-        }
-    }
-    
-    /**
-     * Get all orders dengan filter
-     * 
-     * @param int|null $userId - Untuk pembeli, filter by user_id
-     * @param string|null $status - Filter by status
-     * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
+
     public function getAllOrders($userId = null, $status = null, int $perPage = 15)
     {
-        $query = Order::with(['user', 'items.obat', 'resep']);
-        
+        $query = Order::with(['user', 'items.obat', 'reservation']);
+
         if ($userId) {
             $query->where('user_id', $userId);
         }
-        
         if ($status) {
             $query->where('status', $status);
         }
-        
-        return $query->orderBy('created_at', 'desc')
-                    ->paginate($perPage);
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
-    
-    /**
-     * Get order by ID dengan authorization check
-     */
+
     public function getOrderById(int $orderId, $userId = null): Order
     {
-        $order = Order::with(['user', 'items.obat', 'resep'])
-                     ->findOrFail($orderId);
-        
+        $order = Order::with(['user', 'items.obat', 'resep', 'reservation'])->findOrFail($orderId);
+
         if ($userId && $order->user_id !== $userId) {
             throw ValidationException::withMessages([
                 'order_id' => ['Anda tidak memiliki akses ke order ini.'],
             ]);
         }
-        
+
         return $order;
     }
-    
+
     /**
-     * Update status order dengan validation transition
+     * Update status order — Part 2: transisi kanonis konsisten antar DB/Service/Request.
      */
     public function updateOrderStatus(int $orderId, string $newStatus, int $updatedBy): Order
     {
         $order = Order::findOrFail($orderId);
-        
         $this->validateStatusTransition($order->status, $newStatus);
-        
+
         $order->status = $newStatus;
-        
         if ($newStatus === 'selesai') {
             $order->completed_at = now();
         }
-        
         $order->save();
-        
-        return $order->fresh(['user', 'items.obat', 'resep']);
+
+        return $order->fresh(['user', 'items.obat', 'resep', 'reservation']);
     }
-    
-    /**
-     * Validate status transition
-     * 
-     * @param string $currentStatus
-     * @param string $newStatus
-     * @throws ValidationException
-     */
+
     private function validateStatusTransition(string $currentStatus, string $newStatus): void
     {
         $validTransitions = [
-            'pending' => ['diproses', 'dibatalkan'],
             'diproses' => ['siap_diambil', 'dibatalkan'],
             'siap_diambil' => ['selesai', 'dibatalkan'],
-            'selesai' => [], // Final state
-            'dibatalkan' => [], // Final state
+            'selesai' => [],
+            'dibatalkan' => [],
         ];
-        
+
         if (!in_array($newStatus, $validTransitions[$currentStatus] ?? [])) {
             throw ValidationException::withMessages([
                 'status' => ["Tidak bisa mengubah status dari '{$currentStatus}' ke '{$newStatus}'."],
             ]);
         }
     }
-    
+
     /**
-     * Cancel order dengan stock refund
+     * Master Part 3 C — Konfirmasi pembayaran lunas (idempotent):
+     * keluarkan fisik dari batch + tandai reservation 'confirmed'.
      */
-    public function cancelOrder(int $orderId, int $cancelledBy): Order
+    public function confirmPayment(Order $order): Order
     {
-        return DB::transaction(function () use ($orderId, $cancelledBy) {
-            $order = Order::with('items')->lockForUpdate()->findOrFail($orderId);
-            
-            if (!in_array($order->status, ['pending', 'diproses'])) {
+        $this->stockReservation->confirmPayment($order);
+        return $order->fresh(['user', 'items.obat', 'resep', 'reservation']);
+    }
+
+    /**
+     * Master Part 3 C — Batalkan order dan release reservation.
+     */
+    public function cancelOrder(Order $order): Order
+    {
+        return DB::transaction(function () use ($order): Order {
+            // Lock baris order untuk menghindari double-release pada konkurensi
+            $locked = Order::where('id', $order->id)->lockForUpdate()->firstOrFail();
+
+            if (!in_array($locked->status, ['diproses'], true)) {
                 throw ValidationException::withMessages([
-                    'status' => ['Order dengan status ' . $order->status . ' tidak bisa dibatalkan.'],
+                    'status' => ['Order dengan status ' . $locked->status . ' tidak bisa dibatalkan.'],
                 ]);
             }
-            
-            foreach ($order->items as $item) {
-                $this->refundStock($item->obat_id, $item->qty, $orderId, $cancelledBy);
-            }
-            
-            $order->status = 'dibatalkan';
-            $order->save();
-            
-            return $order->fresh(['user', 'items.obat', 'resep']);
+
+            $this->stockReservation->releaseReservation($locked);
+
+            $locked->status = 'dibatalkan';
+            $locked->save();
+
+            return $locked->fresh(['user', 'items.obat', 'resep', 'reservation']);
         });
-    }
-    
-    /**
-     * Refund stock ke batch sesuai pergerakan_stok
-     */
-    private function refundStock(int $obatId, int $qty, int $orderId, int $userId): void
-    {
-        $movements = PergerakanStok::where('obat_id', $obatId)
-                                  ->where('referensi_id', $orderId)
-                                  ->where('tipe', 'keluar')
-                                  ->get();
-        
-        foreach ($movements as $movement) {
-            $batch = Batch::find($movement->batch_id);
-            if ($batch) {
-                $batch->jumlah_sisa += $movement->jumlah;
-                $batch->save();
-            }
-            
-            PergerakanStok::create([
-                'obat_id' => $obatId,
-                'batch_id' => $movement->batch_id,
-                'tipe' => 'masuk',
-                'jumlah' => $movement->jumlah,
-                'sumber' => 'refund',
-                'referensi_id' => $orderId,
-                'keterangan' => "Refund pembatalan order #{$orderId}",
-                'created_by' => $userId,
-            ]);
-        }
     }
 }
