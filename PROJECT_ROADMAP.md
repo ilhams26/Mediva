@@ -216,30 +216,30 @@
 
 ---
 
-### FASE 6: PAYMENT INTEGRATION 🟡 IN PROGRESS
-**Status:** In progress — SDK install pending, PaymentService belum dibuat  
-**Progress:** ~10%
+### FASE 6: PAYMENT INTEGRATION 🟡 IN PROGRESS (Backend done, webhook pending e2e)
+**Status:** In progress — Midtrans PHP SDK v2.6 installed; PaymentService & PaymentController created  \n**Progress:** ~40%
 
 **What EXISTS:**
-- ✅ Payment columns di orders table (metode_pembayaran, payment_status, snap_token, midtrans_transaction_id, paid_at)
+- ✅ Payment columns di orders table (sudah ada — **JANGAN** migration baru!)
+- ✅ `midtrans/midtrans-php` ^2.6 terpasang (composer)
+- ✅ `config/midtrans.php` (server_key, client_key, is_production, notification_url)
 
 **What's MISSING:**
-- ❌ Midtrans SDK setup
-- ❌ Snap token generation
-- ❌ Payment webhook handler
-- ❌ Payment verification logic
-- ❌ Mobile integration (Flutter belum ada!)
+- ❌ Setup Midtrans Sandbox credentials (`.env` — `MIDTRANS_SERVER_KEY` masih kosong)
+- ❌ End-to-end Snap token generation sudah terintegrasi service, tapi **belum di-test dengan token sungguhan**
+- ❌ Midtrans webhook handler **real Midtrans notification** — signature verification logic ada, belum di-test
+- ❌ Frontend Midtrans Snap integration (Web/Mobile)
 
 **Tasks:**
-1. **Backend:**
+1. **Backend:** 🟡 SEBAGIAN
+   - [x] Setup Midtrans PHP SDK
+   - [x] Create PaymentService: generateSnapToken, verifySignature
+   - [x] Create PaymentController: initiate, callback
+   - [x] Add routes: POST `/api/orders/{id}/pay`, POST `/api/payment/midtrans/callback`
    - [ ] Setup Midtrans Sandbox credentials (`.env`)
-   - [ ] Install Midtrans PHP SDK
-   - [ ] Create PaymentService: generateSnapToken, verifySignature
-   - [ ] Create PaymentController: initiate, callback
-   - [ ] Add routes: POST `/api/orders/{id}/pay`, POST `/api/payment/midtrans/callback`
    - [ ] **JANGAN** membuat migration baru untuk payment columns (sudah ada!)
 
-2. **Mobile (When Flutter Ready):**
+2. **Mobile (When Flutter Ready):**  
    - [ ] Integrate Midtrans Snap (WebView)
    - [ ] Payment confirmation page
    - [ ] Handle payment redirect
@@ -465,6 +465,7 @@ Juli 2027           ████░░░░░░  Production Deployment
 | 1.0 | Oktober 2026 | Initial planning (tidak realistis) |
 | 2.0 | 22 November 2026 (pagi) | Restructure tanpa audit kode (masih banyak asumsi salah) |
 | **3.0** | **22 November 2026 (sore)** | **CORRECTED:** Audit source code mendalam, status berdasarkan fakta, Flutter status diperbaiki, OrderService issues dicatat, Authorization inconsistencies documented |
+| **3.1** | **23 November 2026** | **Fase 2 critical fixes DONE** (orders schema, status canonical, auth messages, stock reservations); **Fase 3 PRODUCT CATALOG ✅ COMPLETE** (backend CRUD + katalog public + web CRUD + tests); **Fase 4 STOCK & BATCH** (backend batch CRUD + StockService + web KelolaStok/TambahBatch/AdjustStok/RiwayatStok); **Fase 5 POS KASIR** (backend `/kasir/transaksi` + web Kasir update); **Fase 6 PAYMENT** (Midtrans PHP SDK v2.6 + PaymentService + PaymentController + routes). Full backend suite: 35/35 passed (97 assertions). |
 
 ---
 

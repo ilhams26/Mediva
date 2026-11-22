@@ -8,6 +8,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ObatController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ResepController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\UserController;
@@ -81,6 +82,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->name('orders.updateStatus')
             ->middleware('role:staf');
         Route::post('/{id}/confirm-payment', [OrdersController::class, 'confirmPayment'])->name('orders.confirm-payment');
+        Route::post('/{id}/pay', [PaymentController::class, 'initiate'])->name('orders.pay');
         Route::post('/{id}/cancel', [OrdersController::class, 'cancel'])->name('orders.cancel');
     });
 
@@ -129,3 +131,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/movements', [StockMovementController::class, 'index'])->name('stock.movements');
     });
 });
+
+// PAYMENT WEBHOOK — Midtrans notification (signature-based, no auth user)
+Route::post('/payment/midtrans/callback', [PaymentController::class, 'callback'])->name('payment.midtrans.callback');
