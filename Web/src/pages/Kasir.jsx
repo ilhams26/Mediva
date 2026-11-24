@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import {
   Search,
@@ -22,6 +21,15 @@ import {
   getCartTotal,
   clearCart,
 } from "../services/cartService";
+
+import {
+  createCashierTransaction,
+  buildCashierPayload,
+} from "../services/cashierService";
+
+import CartItem from "../components/CartItem";
+import CartSummary from "../components/CartSummary";
+import OrderConfirmation from "../components/OrderConfirmation";
 
 const formatRupiah = (value) =>
   new Intl.NumberFormat("id-ID", {
@@ -234,39 +242,27 @@ export default function Kasir() {
     try {
       setLoadingPayment(true);
 
-      const response = await api.post(
-        "/kasir/transaksi",
-        {
-          items: cart.map((item) => ({
-            obat_id: Number(item.obat_id),
-            qty: Number(item.qty),
-          })),
-          metode_pembayaran: "cash",
-          uang_diterima: received,
-        }
-      );
+      const payload = buildCashierPayload(cart, received);
 
-      const data =
-        response.data?.data ??
-        response.data?.transaction ??
-        response.data;
+      const data = await createCashierTransaction(payload);
 
       setSuccess({
         code:
           data?.order_code ??
           data?.transaction_code ??
+          data?.kode_transaksi ??
           data?.id ??
           "-",
 
-        total: Number(
-          data?.total_harga ?? data?.total ?? total
-        ),
+          total: Number(
+            data?.total_harga ?? data?.total ?? total
+          ),
 
-        received: Number(data?.uang_diterima ?? received),
+          received: Number(data?.uang_diterima ?? received),
 
-        change: Number(
-          data?.change ?? data?.kembalian ?? change
-        ),
+          change: Number(
+            data?.kembalian ?? data?.change ?? change
+          ),
       });
 
       clearCart();
@@ -422,210 +418,29 @@ export default function Kasir() {
               </div>
             ) : (
               cart.map((item) => (
-                <div
+                <CartItem
                   key={item.obat_id}
-                  className="border-b border-[#e7f1fa] pb-3"
-                >
-                  <div className="flex items-start justify-between gap-2">
-
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-semibold text-[#123665]">
-                        {item.nama}
-                      </p>
-
-                      <p className="mt-1 text-[11px] text-[#6b87a9]">
-                        {formatRupiah(item.harga)} / item
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleRemove(item.obat_id)
-                      }
-                      className="text-red-500 hover:text-red-700"
-                      aria-label={`Hapus ${item.nama}`}
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between">
-
-                    {/* KONTROL JUMLAH */}
-                    <div className="flex items-center gap-2">
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleQuantity(
-                            item.obat_id,
-                            item.qty - 1
-                          )
-                        }
-                        disabled={item.qty <= 1}
-                        className="rounded-md border border-[#b9dcf8] p-1 text-[#176bc1] disabled:opacity-40"
-                      >
-                        <Minus size={12} />
-                      </button>
-
-                      <span className="min-w-5 text-center text-xs font-semibold">
-                        {item.qty}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleQuantity(
-                            item.obat_id,
-                            item.qty + 1
-                          )
-                        }
-                        disabled={item.qty >= item.stok}
-                        className="rounded-md border border-[#b9dcf8] p-1 text-[#176bc1] disabled:opacity-40"
-                      >
-                        <Plus size={12} />
-                      </button>
-
-                    </div>
-
-                    <span className="text-xs font-semibold text-[#123665]">
-                      {formatRupiah(
-                        item.harga * item.qty
-                      )}
-                    </span>
-                  </div>
-                </div>
+                  item={item}
+                  onQuantityChange={handleQuantity}
+                  onRemove={handleRemove}
+                />
               ))
             )}
           </div>
 
-          {/* TOTAL DAN PEMBAYARAN */}
-          <div className="mt-4 border-t border-[#66baff] pt-4">
-
-            <div className="mb-3 flex items-center justify-between text-sm font-semibold text-[#123665]">
-              <span>
-                Total
-                {totalItems > 0 &&
-                  ` (${totalItems} item)`}
-              </span>
-
-              <span className="text-[#0875dc]">
-                {formatRupiah(total)}
-              </span>
-            </div>
-
-            <label
-              htmlFor="cashReceived"
-              className="mb-1.5 block text-[11px] text-[#6482a8]"
-            >
-              Uang Diterima (Rp)
-            </label>
-
-            <input
-              id="cashReceived"
-              type="number"
-              min="1"
-              step="1"
-              value={amountReceived}
-              onChange={(event) =>
-                setAmountReceived(event.target.value)
-              }
-              placeholder=""
-              className="h-10 w-full rounded-[11px] border-2 border-[#66baff] px-3 text-sm outline-none focus:ring-2 focus:ring-[#66baff]/30"
-            />
-
-            {amountReceived && received < total && (
-              <p className="mt-1 text-[10px] text-red-500">
-                Uang kurang{" "}
-                {formatRupiah(total - received)}
-              </p>
-            )}
-
-            {amountReceived && paymentEnough && (
-              <p className="mt-1 text-[10px] text-green-600">
-                Kembalian: {formatRupiah(change)}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={
-                loadingPayment ||
-                cart.length === 0 ||
-                !paymentEnough
-              }
-              className="mt-3 h-11 w-full rounded-[11px] bg-[#42a5f5] text-xs font-semibold text-white transition hover:bg-[#1976d2] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loadingPayment
-                ? "Memproses..."
-                : "Bayar Sekarang"}
-            </button>
-
-          </div>
+          <CartSummary
+            cart={cart}
+            total={total}
+            received={received}
+            onReceivedChange={setAmountReceived}
+            onPayment={handlePayment}
+            isProcessing={loadingPayment}
+            isPaymentValid={paymentEnough}
+          />
         </form>
       </div>
 
-      {/* MODAL TRANSAKSI BERHASIL */}
-      {success && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#123665]/40 p-4">
-
-          <div className="w-full max-w-sm rounded-2xl bg-white p-7 text-center shadow-xl">
-
-            <CheckCircle2
-              size={52}
-              className="mx-auto mb-3 text-green-500"
-            />
-
-            <h2 className="text-xl font-bold text-[#123665]">
-              Transaksi Berhasil!
-            </h2>
-
-            <p className="mt-1 text-sm text-[#6482a8]">
-              Transaksi berhasil disimpan.
-            </p>
-
-            <div className="my-5 space-y-3 rounded-xl bg-[#f1f8ff] p-4 text-left text-sm">
-
-              <div className="flex justify-between gap-3">
-                <span>Kode Transaksi</span>
-                <strong>{success.code}</strong>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Total</span>
-                <strong>
-                  {formatRupiah(success.total)}
-                </strong>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Uang Diterima</span>
-                <strong>
-                  {formatRupiah(success.received)}
-                </strong>
-              </div>
-
-              <div className="flex justify-between border-t border-[#d8eafa] pt-3">
-                <span>Kembalian</span>
-                <strong className="text-green-600">
-                  {formatRupiah(success.change)}
-                </strong>
-              </div>
-
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setSuccess(null)}
-              className="w-full rounded-xl bg-[#42a5f5] py-3 text-sm font-semibold text-white hover:bg-[#1976d2]"
-            >
-              Transaksi Berikutnya
-            </button>
-
-          </div>
-        </div>
-      )}
+      <OrderConfirmation success={success} onClose={() => setSuccess(null)}/> 
 
     </div>
   );
