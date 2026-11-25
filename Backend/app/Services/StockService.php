@@ -86,9 +86,9 @@ class StockService
     /**
      * Riwayat pergerakan stok (pergerakan_stok).
      */
-    public function getMovements(?int $obatId, ?string $tipe, int $perPage = 15)
+    public function getMovements(?int $obatId, ?string $tipe, ?string $startDate = null, ?string $endDate = null, int $perPage = 100)
     {
-        $query = PergerakanStok::query();
+        $query = PergerakanStok::query()->with(['obat', 'createdBy', 'batch']);
 
         if (!is_null($obatId)) {
             $query->where('obat_id', $obatId);
@@ -96,6 +96,14 @@ class StockService
 
         if (!is_null($tipe)) {
             $query->where('tipe', $tipe);
+        }
+
+        if (!empty($startDate)) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+
+        if (!empty($endDate)) {
+            $query->whereDate('created_at', '<=', $endDate);
         }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);

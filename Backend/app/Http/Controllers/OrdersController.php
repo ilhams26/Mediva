@@ -30,8 +30,11 @@ class OrdersController extends Controller
         $user = $request->user();
         $userId = $user->role === 'pembeli' ? $user->id : null;
         $status = $request->query('status');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $perPage = (int) ($request->query('per_page') ?? 50);
 
-        $orders = $this->orderService->getAllOrders($userId, $status);
+        $orders = $this->orderService->getAllOrders($userId, $status, $perPage, $startDate, $endDate);
 
         return $this->success(OrderResource::collection($orders), 'Daftar order berhasil diambil.');
     }

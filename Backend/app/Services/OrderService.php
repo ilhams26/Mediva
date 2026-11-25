@@ -204,7 +204,7 @@ class OrderService
         return $prefix . str_pad($sequence, 3, '0', STR_PAD_LEFT);
     }
 
-    public function getAllOrders($userId = null, $status = null, int $perPage = 15)
+    public function getAllOrders($userId = null, $status = null, int $perPage = 15, ?string $startDate = null, ?string $endDate = null)
     {
         $query = Order::with(['user', 'items.obat', 'reservation']);
 
@@ -213,6 +213,12 @@ class OrderService
         }
         if ($status) {
             $query->where('status', $status);
+        }
+        if (!empty($startDate)) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('created_at', '<=', $endDate);
         }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);

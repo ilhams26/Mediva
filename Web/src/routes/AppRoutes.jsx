@@ -15,6 +15,7 @@ import KelolaStok from "../pages/KelolaStok";
 import TambahBatch from "../pages/TambahBatch";
 import AdjustStok from "../pages/AdjustStok";
 import RiwayatStok from "../pages/RiwayatStok";
+import Laporan from "../pages/Laporan";
 
 export default function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -150,6 +151,21 @@ export default function AppRoutes() {
             <ProtectedRoute allowedRoles={["staf", "admin"]}>
               <AppShell>
                 <RiwayatStok />
+              </AppShell>
+            </ProtectedRoute>
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+
+      <Route
+        path="/laporan"
+        element={
+          isAuthenticated ? (
+            <ProtectedRoute allowedRoles={["staf", "admin"]}>
+              <AppShell>
+                <Laporan />
               </AppShell>
             </ProtectedRoute>
           ) : (
