@@ -75,7 +75,7 @@ export const exportInventoryToExcel = async ({
   // 2. Judul
   worksheet.mergeCells("C1:F1");
   const titleCell = worksheet.getCell("C1");
-  titleCell.value = isAdmin ? "LAPORAN PENJUALAN OBAT" : "LAPORAN INVENTORI OBAT";
+  titleCell.value = isAdmin ? "LAPORAN PENJUALAN OBAT" : "LAPORAN PERGERAKAN STOK";
   titleCell.font = { name: "Arial", size: 14, bold: true, color: { argb: "FF000000" } };
   titleCell.alignment = { horizontal: "left", vertical: "middle" };
 
@@ -160,15 +160,18 @@ export const exportInventoryToExcel = async ({
       row.getCell(2).alignment = { horizontal: "center", vertical: "middle" };
 
       row.getCell(3).value = item.nama_obat || "-";
-      row.getCell(3).alignment = { horizontal: "left", vertical: "middle" };
+      row.getCell(3).alignment = { horizontal: "center", vertical: "middle" };
 
       row.getCell(4).value = Number(item.pemasukan || 0);
+      row.getCell(4).numFmt = "#,##0";
       row.getCell(4).alignment = { horizontal: "center", vertical: "middle" };
 
       row.getCell(5).value = Number(item.pengeluaran || 0);
+      row.getCell(5).numFmt = "#,##0";
       row.getCell(5).alignment = { horizontal: "center", vertical: "middle" };
 
       row.getCell(6).value = stokAkhir;
+      row.getCell(6).numFmt = "#,##0";
       row.getCell(6).alignment = { horizontal: "center", vertical: "middle" };
       row.getCell(6).font = { name: "Arial", size: 10, bold: true };
     }
@@ -181,51 +184,29 @@ export const exportInventoryToExcel = async ({
     }
   });
 
-  // 6. Baris Total
+  // 6. Baris Total (Tampilan persis sesuai gambar mockup untuk Admin & Staff)
   const totalRowIndex = currentRow + data.length;
   const totalRow = worksheet.getRow(totalRowIndex);
   totalRow.height = 24;
 
-  if (isAdmin) {
-    // Admin: TOTAL PENJUALAN pada background biru muda dengan nilai hijau di kolom 6
-    worksheet.mergeCells(`A${totalRowIndex}:E${totalRowIndex}`);
-    const totLabel = worksheet.getCell(`A${totalRowIndex}`);
-    totLabel.value = "TOTAL PENJUALAN";
-    totLabel.font = { name: "Arial", size: 10, bold: true };
-    totLabel.alignment = { horizontal: "center", vertical: "middle" };
-    totLabel.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFDBEAFE" } };
+  // Gabungkan Kolom A s/d E dengan label TOTAL / TOTAL PENJUALAN
+  worksheet.mergeCells(`A${totalRowIndex}:E${totalRowIndex}`);
+  const totLabel = worksheet.getCell(`A${totalRowIndex}`);
+  totLabel.value = isAdmin ? "TOTAL PENJUALAN" : "TOTAL";
+  totLabel.font = { name: "Arial", size: 10, bold: true };
+  totLabel.alignment = { horizontal: "center", vertical: "middle" };
+  totLabel.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFDBEAFE" } }; // Biru muda lembut
 
-    const totVal = worksheet.getCell(`F${totalRowIndex}`);
-    totVal.value = totalSum;
-    totVal.numFmt = "#,##0";
-    totVal.font = { name: "Arial", size: 11, bold: true, color: { argb: "FF16A34A" } };
-    totVal.alignment = { horizontal: "center", vertical: "middle" };
-    totVal.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFDBEAFE" } };
+  // Kolom F dengan teks angka hijau tebal persis seperti di gambar
+  const totVal = worksheet.getCell(`F${totalRowIndex}`);
+  totVal.value = totalSum;
+  totVal.numFmt = "#,##0";
+  totVal.font = { name: "Arial", size: 11, bold: true, color: { argb: "FF16A34A" } }; // Warna hijau tebal
+  totVal.alignment = { horizontal: "center", vertical: "middle" };
+  totVal.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFDBEAFE" } };
 
-    for (let c = 1; c <= 6; c++) {
-      totalRow.getCell(c).border = thinBorder;
-    }
-  } else {
-    // Staff: TOTAL baris
-    worksheet.mergeCells(`A${totalRowIndex}:B${totalRowIndex}`);
-    worksheet.getCell(`A${totalRowIndex}`).border = { top: { style: "thin", color: { argb: "FFD1D5DB" } } };
-
-    const totC = totalRow.getCell(3);
-    totC.value = "TOTAL";
-    totC.font = { name: "Arial", size: 10, bold: true };
-    totC.alignment = { horizontal: "left", vertical: "middle" };
-
-    totalRow.getCell(4).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
-    totalRow.getCell(5).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFD9D9D9" } };
-
-    const totF = totalRow.getCell(6);
-    totF.value = totalSum;
-    totF.font = { name: "Arial", size: 10, bold: true };
-    totF.alignment = { horizontal: "right", vertical: "middle" };
-
-    for (let c = 3; c <= 6; c++) {
-      totalRow.getCell(c).border = thinBorder;
-    }
+  for (let c = 1; c <= 6; c++) {
+    totalRow.getCell(c).border = thinBorder;
   }
 
   // 7. Lebar Kolom
