@@ -1,194 +1,116 @@
-# Postman Testing Setup - Mediva API
+# Mediva API Testing
 
-## 📌 Important: READ ME FIRST
+## Overview
+This directory contains the comprehensive API testing suite and results for the Mediva Laravel backend.
 
-> ⚠️ **SECURITY FIRST**: Semua credentials dan sensitive data disimpan di **`.postman.json` (LOCAL ONLY)**. File ini **TIDAK boleh di-push** ke repository.
+## Files
 
----
+### 📄 `final-test-results.md`
+Complete test report covering all 48+ endpoints across 7 phases:
+- **Date:** 2026-11-24
+- **Total Tests:** 53
+- **Coverage:** 30.2%
+- **Status:** 16 passed, 19 failed, 18 observed/skipped
 
-## 📚 Dokumentasi
+#### Test Phases Covered:
+1. **FASE 1:** Auth & Health (12 endpoints)
+2. **FASE 2:** User Management (6 endpoints)
+3. **FASE 3:** Product Catalog (10 endpoints)
+4. **FASE 4:** Stock & Batch Management (5 endpoints)
+5. **FASE 5:** POS Kasir (1 endpoint)
+6. **FASE 6:** Orders & Payments (7 endpoints)
+7. **FASE 7:** Resep / Prescriptions (4 endpoints)
+8. **Authorization Matrix:** Cross-role authorization tests (6 tests)
 
-| File | Tujuan |
-|------|--------|
-| **collection-status.md** | Status 26 endpoint yang sudah dibuat |
-| **TESTING-GUIDE.md** | Panduan lengkap cara testing |
-| **HOOK-EXPLANATION.md** | Penjelasan otomasi hook untuk testing |
-| **SUMMARY.md** | Ringkasan setup & cara menggunakan |
-| **SECURITY-AUDIT.md** | Audit keamanan - semua passed ✅ |
-| **README.md** | File ini |
+### 🐍 `test_api.py`
+Python script used to execute the comprehensive API tests. Can be re-run with:
 
----
-
-## 🚀 Quick Start (5 Menit)
-
-### 1. Setup Postman Local Config
-Buat file `.postman.json` di root (local only, jangan push):
-
-```json
-{
-  "workspaceId": "[WORKSPACE_ID_DARI_POSTMAN]",
-  "collectionId": "[COLLECTION_ID_DARI_POSTMAN]",
-  "environmentIds": {
-    "local": "[ENV_ID_DARI_POSTMAN]"
-  }
-}
-```
-
-> Dapatkan ID dari Postman UI → Settings → Collection/Environment
-
-### 2. Start Laravel Server
 ```bash
-cd Backend
-php artisan serve
+python test_api.py
 ```
 
-### 3. Testing di Postman
-- Buka workspace Postman
-- Pilih collection "Mediva API"
-- Pilih environment "Mediva Local"
-- Mulai testing endpoints
+**Requirements:**
+- Python 3.x
+- `requests` library (`pip install requests`)
 
-### 4. Automated Testing dengan Hook
-- Edit file controller di Backend
-- Save (Ctrl+S)
-- Hook otomatis menjalankan test
-- Lihat hasil di Kiro chat
+## Test Users
+The following test users were used (must exist in database):
 
----
+| Role  | Login ID       | Password   |
+|-------|----------------|------------|
+| Admin | 081234567890   | Admin123!  |
+| Staff | 081234567891   | Staff123!  |
+| Buyer | 081234567892   | Buyer123!  |
 
-## ✅ Security Checklist
+## Key Findings
 
-Sebelum push ke GitHub, pastikan:
+### ✅ Working Endpoints
+- Health check
+- Authentication (login/logout)
+- User profile retrieval
+- Public catalog endpoints
+- Prescription submission and listing
+- Order listing
 
-- [ ] `.postman.json` **TIDAK** ada di repository (otomatis ignore)
-- [ ] `Pengerjaan/` folder **TIDAK** ada di repository (otomatis ignore)
-- [ ] `.env` file **TIDAK** ada di repository (otomatis ignore)
-- [ ] Run `git status` - pastikan file di atas tidak ter-list
-- [ ] Baca `SECURITY-AUDIT.md` - pastikan semua passed ✅
+### ❌ Issues Found
+1. **Rate Limiting (429):** Some endpoints hit throttle limits during testing
+2. **Token Expiry:** After logout/re-login, some tokens became invalid
+3. **Missing Data:** No obat records in database caused 404 errors
+4. **Field Validation:** Some endpoints require different field names than documented
+5. **Authorization:** Staff token had issues - requires investigation
 
----
+### 🔍 Authorization Matrix Results
+- ✓ Buyer correctly denied access to admin endpoints (403)
+- ✓ Unauthenticated requests correctly return 401
+- ✓ Buyer correctly denied access to staff-only endpoints (403)
+- ✗ Admin token became invalid after re-login (should have been 403 for staff-only endpoints)
 
-## 📊 26 Endpoint Coverage
+## Recommendations
 
-### By Category
-- **Public** (7) - Register, Login, Forgot Password, etc
-- **Protected** (3) - User info, Logout, Change password
-- **Orders** (5) - CRUD operations
-- **Resep** (4) - Prescription management
-- **Admin** (7) - User management
+1. **Seed Database:** Add sample obat, kategori, and batch data for testing
+2. **Fix Staff Login:** Investigate why staff login returns 422 error
+3. **Token Management:** Review token expiration and refresh logic
+4. **Rate Limiting:** Adjust throttle settings for development/testing
+5. **Field Names:** Standardize field names across endpoints (e.g., `password` vs `new_password`)
+6. **Authorization:** Ensure role-based middleware is properly applied
 
-### By Status
-- ✅ All endpoints created
-- ✅ All with example bodies
-- ✅ All with documentation
-- ✅ Hook configured for auto-testing
+## Re-running Tests
 
----
+To re-run the comprehensive test suite:
 
-## 🔄 Workflow
+```bash
+# Navigate to the directory
+cd c:\laragon\www\Mediva\Pengerjaan\Postman
 
-### Manual Testing
-```
-Edit file → Buka Postman → Click endpoint → Send → Check response
-```
+# Ensure Laravel server is running on http://127.0.0.1:8000
 
-### Automated Testing (Hook)
-```
-Edit file → Ctrl+S → Hook triggers → Auto test → Results in Kiro chat
-```
+# Run the test script
+python test_api.py
 
----
-
-## 🔒 Security Features
-
-| Feature | Status |
-|---------|--------|
-| No API key in documentation | ✅ |
-| No Collection ID exposed | ✅ |
-| No credentials hardcoded | ✅ |
-| .gitignore properly configured | ✅ |
-| Local config ignored by git | ✅ |
-| Documentation safe for GitHub | ✅ |
-
----
-
-## 📋 Environment Setup
-
-### Postman Local Environment Variables
-Set di "Mediva Local" environment:
-
-```
-base_url        = http://localhost:8000
-access_token    = (update setelah login)
-test_phone      = 081234567890
-test_password   = (password test Anda)
+# View results
+# Results are saved to final-test-results.md
 ```
 
-### Important Notes
-- Update `access_token` setelah login
-- `base_url` untuk local dev: `http://localhost:8000`
-- Jangan hardcode credentials di file
+## Notes
+
+- Tests are **read-only** where possible (no permanent data modifications)
+- Test data created during execution is cleaned up when possible
+- Some tests are skipped if prerequisites are not met (e.g., no test order ID)
+- OTP-related endpoints were tested with dummy values to observe responses
+- All HTTP requests were made with 10-second timeout
+
+## Integration with Postman
+
+The user has manually imported the Mediva API collection into Postman. This directory contains:
+- Automated test results for reference
+- Python script for regression testing
+- Detailed endpoint coverage report
+
+For manual testing, use the Postman collection. For automated/regression testing, use the Python script.
 
 ---
 
-## 🐛 Troubleshooting
-
-**"Connection refused"**
-→ Pastikan Laravel server berjalan: `php artisan serve`
-
-**"401 Unauthorized"**
-→ Login ulang, update access_token di environment
-
-**"Validation failed"**
-→ Check JSON body format & required fields
-
-**"500 Error"**
-→ Cek Laravel log: `tail -f Backend/storage/logs/laravel.log`
-
----
-
-## 📞 Support
-
-1. **Baca dokumentasi** sesuai kebutuhan
-   - Testing: `TESTING-GUIDE.md`
-   - Hook: `HOOK-EXPLANATION.md`
-   - Security: `SECURITY-AUDIT.md`
-
-2. **Jalankan Laravel server**
-   ```bash
-   cd Backend
-   php artisan serve
-   ```
-
-3. **Test manual dulu** sebelum setup hook
-
----
-
-## 🎯 Next Steps
-
-- [ ] Setup `.postman.json` (local only)
-- [ ] Start Laravel server
-- [ ] Test manual di Postman
-- [ ] Verify hook works
-- [ ] Push ke GitHub (aman ✅)
-
----
-
-## ⚠️ REMEMBER
-
-```
-🚀 Push Documentation to GitHub - OK ✅
-❌ Push .postman.json to GitHub - FORBIDDEN
-❌ Push Pengerjaan/ folder to GitHub - FORBIDDEN
-❌ Expose API keys - NEVER
-```
-
----
-
-**Status**: ✅ Safe for Production
-
-All documentation is ready for GitHub. No credentials exposed.
-Local configuration files are properly ignored.
-
-Enjoy secure API testing! 🔒🚀
-
+**Last Updated:** 2026-11-24  
+**Test Environment:** http://127.0.0.1:8000/api  
+**Laravel Version:** 11.x  
+**Database:** MySQL via Laragon
