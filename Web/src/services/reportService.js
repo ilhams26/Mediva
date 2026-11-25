@@ -1,7 +1,7 @@
 import api from "./api";
 
 /**
- * Mengambil Laporan Pergerakan Stok langsung dari Database via API
+ * Mengambil Laporan Pergerakan Stok langsung dari Database via API (untuk Staff)
  * params: { start_date, end_date, obat_id, tipe, per_page }
  */
 export const getStockReport = async (params = {}) => {
@@ -38,27 +38,34 @@ export const getStockReport = async (params = {}) => {
 };
 
 /**
- * Mengambil Laporan Penjualan / Transaksi Order langsung dari Database
- * params: { start_date, end_date, status, per_page }
+ * Mengambil Laporan Penjualan Obat langsung dari Database (untuk Admin)
+ * params: { start_date, end_date, per_page }
+ * Menghasilkan: No, Tanggal, Nama Obat, Jumlah, Pemasukan, Stok Real
  */
-export const getSalesReport = async (params = {}) => {
-  const response = await api.get("/orders", { params });
+export const getAdminSalesReport = async (params = {}) => {
+  const response = await api.get("/stock/sales-report", { params });
   const body = response.data;
 
   let rows = [];
+  let summary = null;
+  let pagination = null;
+
   if (Array.isArray(body)) {
     rows = body;
   } else if (Array.isArray(body?.data)) {
     rows = body.data;
   } else if (body?.data && Array.isArray(body.data?.data)) {
     rows = body.data.data;
+    summary = body.data.summary;
+    pagination = body.data.pagination;
   }
 
   return {
     items: rows,
-    summary: {
-      total_transaksi: rows.length,
-      total_pendapatan: rows.reduce((acc, curr) => acc + (Number(curr.total_harga) || 0), 0),
+    summary: summary ?? {
+      total_penjualan: rows.reduce((acc, curr) => acc + (Number(curr.pemasukan) || 0), 0),
+      total_jumlah: rows.reduce((acc, curr) => acc + (Number(curr.jumlah) || 0), 0),
     },
+    pagination,
   };
 };

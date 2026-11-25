@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OrderItem;
 use App\Models\PergerakanStok;
 use App\Services\StockService;
 use App\Traits\ApiResponse;
@@ -75,5 +76,59 @@ class StockMovementController extends Controller
                 'total_stok_akhir' => $mappedData->sum('stok_akhir'),
             ],
         ], 'Riwayat pergerakan stok berhasil diambil.');
+    }
+
+    /**
+     * GET /api/stock/sales-report — Laporan penjualan obat untuk Admin.
+     * Format kolom: No, Tanggal, Nama Obat, Jumlah, Pemasukan, Stok Real
+     */
+    public function salesReport(Request $request): JsonResponse
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+        $perPage = (int) ($request->query('per_page') ?? 100);
+
+        $query = OrderItem::query()
+            ->with(['order', 'obat.batches'])
+            ->whereHas('order', function ($q) use ($startDate, $endDate) {
+                if (!empty($startDate)) {
+                    $q->whereDate('created_at', '>=', $startDate);
+                }
+                if (!empty($endDate)) {
+                    $q->whereDate('created_at', '<=', $endDate);
+                }
+            })
+            ->orderBy('id', 'asc');
+
+        $items = $query->paginate($perPage);
+
+        $mappedData = $items->map(function ($item) {
+            $stokReal = $item->obat?->batches()->sum('jumlah_sisa') ?? 0;
+            $tanggal = $item->created_at ? $item->created_at->format('d-m-Y H:i') : ($item->order?->created_at ? $item->order->created_at->format('d-m-Y H:i') : '-');
+
+            return [
+                'id' => $item->id,
+                'tanggal' => $tanggal,
+                'nama_obat' => $item->obat?->nama ?? ('Obat #' . $item->obat_id),
+                'jumlah' => (int) $item->qty,
+                'pemasukan' => (float) ($item->subtotal ?? ($item->qty * $item->harga)),
+                'stok_real' => (int) $stokReal,
+                'created_at' => $item->created_at?->toIso8601String(),
+            ];
+        });
+
+        return $this->success([
+            'data' => $mappedData,
+            'summary' => [
+                'total_penjualan' => $mappedData->sum('pemasukan'),
+                'total_jumlah' => $mappedData->sum('jumlah'),
+            ],
+            'pagination' => [
+                'current_page' => $items->currentPage(),
+                'last_page' => $items->lastPage(),
+                'per_page' => $items->perPage(),
+                'total' => $items->total(),
+            ],
+        ], 'Laporan penjualan obat berhasil diambil.');
     }
 }

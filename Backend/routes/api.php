@@ -126,9 +126,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // POS Kasir (Fase 5)
     Route::middleware(['auth:sanctum', 'role:staf'])->post('/kasir/transaksi', [KasirController::class, 'store'])->name('kasir.transaksi');
 
-    // Stock movement history (Fase 4)
+    // Stock movement history & Sales Report (Laporan)
     Route::middleware(['auth:sanctum', 'role:staf,admin'])->prefix('stock')->group(function () {
         Route::get('/movements', [StockMovementController::class, 'index'])->name('stock.movements');
+        Route::get('/sales-report', [StockMovementController::class, 'salesReport'])->name('stock.sales-report');
     });
 });
 
