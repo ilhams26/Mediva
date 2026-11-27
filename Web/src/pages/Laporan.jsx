@@ -7,7 +7,7 @@ import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/outline';
 
 export default function Laporan() {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
 
   // Filter tanggal (format YYYY-MM-DD)
   const [startDate, setStartDate] = useState('');
