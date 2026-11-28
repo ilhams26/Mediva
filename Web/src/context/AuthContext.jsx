@@ -31,8 +31,6 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     const token = sessionStorage.getItem("auth_token");
 
-    // Bersihkan sesi lokal lebih dulu agar UI langsung keluar,
-    // jangan menunggu request jaringan (bisa lambat / timeout).
     sessionStorage.removeItem("auth_token");
     sessionStorage.removeItem("auth_user");
     setAuth({ token: null, user: null, isAuthenticated: false });

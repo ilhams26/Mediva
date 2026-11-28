@@ -1,14 +1,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  Search,
-  Plus,
-  Minus,
-  Trash2,
-  CheckCircle2,
-  AlertCircle,
-  X,
-} from "lucide-react";
+  MagnifyingGlassIcon,
+  PlusIcon,
+  MinusIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 import { useAuth } from "../hooks/useAuth";
 import { PageHeader } from "../components/PageHeader";
@@ -302,9 +302,9 @@ export default function Kasir() {
       {/* PESAN ERROR */}
       {error && (
         <div className="mb-3 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-          <AlertCircle
-            size={18}
-            className="mt-0.5 shrink-0"
+          <ExclamationCircleIcon
+            className="mt-0.5 h-5 w-5 shrink-0"
+            aria-hidden="true"
           />
 
           <span className="flex-1">{error}</span>
@@ -314,7 +314,7 @@ export default function Kasir() {
             onClick={() => setError("")}
             aria-label="Tutup pesan"
           >
-            <X size={16} />
+            <XMarkIcon className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       )}
@@ -332,9 +332,9 @@ export default function Kasir() {
 
             {/* PENCARIAN */}
             <div className="relative w-full sm:w-40">
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6793c4]"
+              <MagnifyingGlassIcon
+                className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6793c4]"
+                aria-hidden="true"
               />
 
               <input
@@ -381,7 +381,7 @@ export default function Kasir() {
                     />
                   ) : (
                     <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#e4f3ff] text-[#238fe8]">
-                      <Plus size={19} />
+                      <PlusIcon className="h-5 w-5" aria-hidden="true" />
                     </span>
                   )}
 
@@ -446,7 +446,7 @@ export default function Kasir() {
                       className="text-red-500 hover:text-red-700"
                       aria-label={`Hapus ${item.nama}`}
                     >
-                      <Trash2 size={15} />
+                      <TrashIcon className="h-4 w-4" aria-hidden="true" />
                     </button>
                   </div>
 
@@ -466,7 +466,7 @@ export default function Kasir() {
                         disabled={item.qty <= 1}
                         className="rounded-md border border-[#b9dcf8] p-1 text-[#176bc1] disabled:opacity-40"
                       >
-                        <Minus size={12} />
+                        <MinusIcon className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
 
                       <span className="min-w-5 text-center text-xs font-semibold">
@@ -484,7 +484,7 @@ export default function Kasir() {
                         disabled={item.qty >= item.stok}
                         className="rounded-md border border-[#b9dcf8] p-1 text-[#176bc1] disabled:opacity-40"
                       >
-                        <Plus size={12} />
+                        <PlusIcon className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
 
                     </div>
@@ -572,9 +572,9 @@ export default function Kasir() {
 
           <div className="w-full max-w-sm rounded-2xl bg-white p-7 text-center shadow-xl">
 
-            <CheckCircle2
-              size={52}
-              className="mx-auto mb-3 text-green-500"
+            <CheckCircleIcon
+              className="mx-auto mb-3 h-14 w-14 text-green-500"
+              aria-hidden="true"
             />
 
             <h2 className="text-xl font-bold text-[#123665]">

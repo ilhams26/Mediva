@@ -43,7 +43,7 @@ export function RoleSelector() {
       let msg;
       if (!err?.response) {
         msg =
-          "Tidak dapat terhubung ke server backend. Pastikan `php artisan serve berjalan .";
+          "Tidak dapat terhubung ke server backend. Pastikan server berjalan.";
       } else {
         msg =
           err.response.data?.errors?.login_id?.[0] ??

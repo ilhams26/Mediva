@@ -57,11 +57,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('change-password');
     Route::get('/user', fn(Request $request) => $request->user())->name('user');
+    
+    //Dashboard 
+    Route::get('/dashboard/stats',[ObatController::class,'dashboardStats'])->name('dashboard.stats');
 
     // Admin only
     Route::middleware('role:admin')->group(function () {
         Route::get('/obat/count', [ObatController::class, 'count'])->name('obat.count');
-        
+
         // User Management
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index']);
@@ -96,7 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->middleware('role:staf');
     });
 
-    // Product Catalog — Management obat (read: staf & admin; write: staf only)
+    // Product Catalog — Management obat 
     Route::middleware(['auth:sanctum', 'role:staf,admin'])->prefix('obat')->group(function () {
         Route::get('/', [ObatController::class, 'index'])->name('obat.index');
         Route::get('/{id}', [ObatController::class, 'show'])->name('obat.show');

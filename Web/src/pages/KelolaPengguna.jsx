@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Pencil, Trash2, Search, UserPlus, X } from 'lucide-react';
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  MagnifyingGlassIcon,
+  UserPlusIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 import {
   getUsers,
   createUser,
@@ -14,7 +20,7 @@ const ROLE_OPTIONS = [
 
 const DEFAULT_FORM = {
   username: '',
-  no_hp: '',
+  no_hp: '08',
   role: 'staf',
   password: '',
   password_confirmation: '',
@@ -207,9 +213,9 @@ export default function KelolaPengguna() {
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 px-6 py-4">
           <div className="flex items-center gap-3 ml-auto">
             <div className="relative">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              <MagnifyingGlassIcon
+                className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                aria-hidden="true"
               />
               <input
                 type="text"
@@ -223,7 +229,7 @@ export default function KelolaPengguna() {
               onClick={openCreateModal}
               className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition"
             >
-              <UserPlus size={16} />
+              <UserPlusIcon className="h-4 w-4" aria-hidden="true" />
               <span>Tambah Pengguna</span>
             </button>
           </div>
@@ -282,14 +288,14 @@ export default function KelolaPengguna() {
                           title="Edit"
                           className="rounded-lg p-1.5 text-blue-600 hover:bg-blue-100 transition"
                         >
-                          <Pencil size={16} />
+                          <PencilSquareIcon className="h-4 w-4" aria-hidden="true" />
                         </button>
                         <button
                           onClick={() => confirmDelete(user.id)}
                           title="Hapus"
                           className="rounded-lg p-1.5 text-red-500 hover:bg-red-100 transition"
                         >
-                          <Trash2 size={16} />
+                          <TrashIcon className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -313,7 +319,7 @@ export default function KelolaPengguna() {
                 onClick={closeModal}
                 className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
               >
-                <X size={18} />
+                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -426,7 +432,7 @@ export default function KelolaPengguna() {
           <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <Trash2 size={22} className="text-red-500" />
+                <TrashIcon className="h-6 w-6 text-red-500" aria-hidden="true" />
               </div>
             </div>
             <h3 className="mb-2 text-center text-base font-semibold text-gray-800">

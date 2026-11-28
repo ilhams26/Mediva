@@ -150,4 +150,24 @@ class ObatController extends Controller
 
         return $this->success(null, 'Obat berhasil dinonaktifkan.');
     }
+
+    public function dashboardStats(): JsonResponse
+    {
+        $totalObat = Obat::count();
+        $antreanPesanan = Order::whereIn('status', ['diproses', 'siap_diambil'])->count();
+        $obatMasukHariIni = PergerakanStok::where('jenis', 'masuk')
+            ->whereDate('created_at', today())
+            ->sum('jumlah');
+        $obatMenipis = Obat::where('stok_total', '<=', 10)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_obat' => $totalObat,
+                'antrean_pesanan' => $antreanPesanan,
+                'obat_masuk' => (int) $obatMasukHariIni,
+                'obat_menipis' => $obatMenipis,
+            ],
+        ]);
+    }
 }

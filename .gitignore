@@ -5,6 +5,7 @@
 .aider-desk/
 .agents/
 .postman.json
+.Pengerjaan/
 
 # Pengerjaan folder (local working directory - tidak di-push)
 Pengerjaan/rr
