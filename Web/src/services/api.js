@@ -8,7 +8,7 @@ const api = axios.create({
   },
   // Koneksi ke Supabase bisa lambat (DNS/network), beri ruang lebih dari 8 detik
   timeout: 30000,
-  withCredentials: true,
+  withCredentials: false,
 });
 
 api.interceptors.request.use((config) => {

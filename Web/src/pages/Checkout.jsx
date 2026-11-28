@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,6 +16,7 @@ import {
 
 import {
   createCashierTransaction,
+  buildCashierPayload,
 } from "../services/cashierService";
 
 const formatRupiah = (value) =>
@@ -111,14 +111,7 @@ export default function Checkout() {
       return;
     }
 
-    // Kontrak payload yang perlu disepakati dengan backend.
-    const payload = {
-      items: cart.map((item) => ({
-        obat_id: Number(item.obat_id),
-        qty: Number(item.qty),
-      })),
-      uang_diterima: received,
-    };
+    const payload = buildCashierPayload(cart, received);
 
     try {
       setLoading(true);

@@ -46,7 +46,7 @@ export default function KelolaPengguna() {
       } catch (err) {
         console.error('Gagal memuat pengguna:', err);
         if (!ignore) {
-          setError('Gagal memuat data pengguna. Pastikan server berjalan.');
+          setError('Gagal memuat data pengguna. Periksa koneksi anda.');
           setUsers([]);
         }
       } finally {

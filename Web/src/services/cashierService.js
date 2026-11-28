@@ -1,4 +1,3 @@
-
 import api from "./api";
 
 // Mengambil daftar obat dari backend
@@ -9,7 +8,7 @@ export const getMedicines = async (search = "") => {
 
   const result = response.data?.data ?? response.data;
 
-  // Mendukung response berbentuk array atau pagination Laravel
+  // Mendukung response berbentuk array 
   const medicines = Array.isArray(result)
     ? result
     : result?.data ?? [];
@@ -23,6 +22,17 @@ export const getMedicines = async (search = "") => {
       item.stok ?? item.stok_total ?? item.stock ?? 0
     ),
   }));
+};
+
+export const buildCashierPayload = (cart, amountReceived) => {
+  return {
+    items: cart.map((item) => ({
+      obat_id: Number(item.obat_id),
+      qty: Number(item.qty),
+    })),
+    metode_pembayaran: "cash",
+    uang_diterima: Number(amountReceived),
+  };
 };
 
 // Menyimpan transaksi Kasir
